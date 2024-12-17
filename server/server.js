@@ -8,7 +8,7 @@ const db = mysql.createConnection({
     host: "localhost",
     port:"3306",
     user: "root",
-    password: "1111",
+    password: "ann123123",
     database:"easyboard"
 })
 
@@ -33,6 +33,13 @@ app.post("/api/insert", (req, res) => {
         res.send('succ');
     });
 });
+
+app.get("/api/get", (req,res) => {
+    const sqlQuery = "SELECT * FROM board;";
+    db.query(sqlQuery, (err, result)=> {
+        res.send(result);
+    })
+})
 
 
 app.listen(PORT, ()=>{
