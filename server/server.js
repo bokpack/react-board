@@ -14,10 +14,19 @@ const db = mysql.createConnection({
 
 db.connect(err => { if (err) console.log("MySQL 연결 실패 : ", err); console.log("MySQL가 연결되었습니다!"); }) // 오류해결 https://www.inflearn.com/questions/3637
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE", "PUT"]
+}));
+
 app.use(express.json());
 
-// insert에 들어온 data를 쿼리에 전송하는 것 
+app.use((req, res, next) => {
+    console.log(`요청경로: ${req.path}, 요청메소드: ${req.method}`);
+    next();
+})
+
+// INSERT 게시글 등록
 app.post("/api/insert", (req, res) => {
     const title = req.body.title;
     const content = req.body.content;
@@ -34,6 +43,7 @@ app.post("/api/insert", (req, res) => {
     });
 });
 
+// GET 게시글 전체 조회
 app.get("/api/get", (req,res) => {
     const sqlQuery = "SELECT * FROM board;";
     db.query(sqlQuery, (err, result)=> {
@@ -41,6 +51,29 @@ app.get("/api/get", (req,res) => {
     })
 })
 
+// UPDATE 게시글 수정
+// app.get("/api/update", (req,res) => {
+//     const title = req.body.title;
+//     const content = req.body.content;
+//     const date = req.body.date;
+
+//     const sqlQuery =    `UPDATE BOARD SET `
+// })
+
+// DELETE 게시글 삭제
+app.delete("/api/delete/:id", (req,res) => {
+    const id = req.params.id;
+    console.log("삭제요청받은은 id : ", id)
+    const sqlQuery = "DELETE FROM board WHERE id = ? "
+    db.query(sqlQuery, [id], (err,result) => {
+        if(err) {
+            console.error("MYSQL 쿼리 오류 : ",err);
+            return res.status(500).send('서버오류');
+        }
+        console.log('게시글 삭제 성공 : ',result);
+        res.send(result);
+    })
+})
 
 app.listen(PORT, ()=>{
     console.log(`포트 ${PORT}번으로 서버를 열었습니다.`);

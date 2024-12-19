@@ -1,5 +1,6 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,  } from 'react';
+import { useParams } from 'react-router-dom';
 import Axios from "axios";
 import colors from "tailwindcss/colors";
 
@@ -11,6 +12,7 @@ function App() {
 
   const [viewContent, setViewContent] = useState([]);
   const submitDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const { id } = useParams;
 
   // 글 등록 시 입력값 처리
   const getValue = (e) => {
@@ -22,7 +24,7 @@ function App() {
   }
 
   // 서버에서 게시글 목록 가져오기
-  const boardUpdate = () => {
+  const boardList = () => {
     Axios.get('http://localhost:8000/api/get')
         .then((res) => {
           setViewContent(res.data);
@@ -40,7 +42,7 @@ function App() {
       date: submitDate
     })
         .then(() => {
-          boardUpdate(); // 데이터가 추가된 후 목록 새로고침
+          boardList(); // 데이터가 추가된 후 목록 새로고침
         })
         .catch((err) => {
           console.error('게시글 등록 실패:', err);
@@ -48,13 +50,29 @@ function App() {
   }
 
   // 게시글 수정하기
+
+  //게시글 삭제하기
+  const boardDelete = (id) => {
+    console.log("삭제요청 ID:", id)
+    Axios.delete(`http://localhost:8000/api/delete/${id}`)
+    .then((res) => {
+      console.log("삭제된 게시글 : ",res.data);
+      boardList();
+    })
+    .catch((err) => {
+      console.log("게시글 삭제 실패 : ", err);
+    })
+  }
+
+
   
 
   // 컴포넌트가 처음 렌더링될 때 게시글 목록을 가져오기
   useEffect(() => {
-    boardUpdate();
+    boardList();
   }, []); // 빈 배열([])로 설정하여 한 번만 실행되도록
 
+  // date 한국어 형식으로 변경
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const options = {
@@ -93,7 +111,7 @@ function App() {
           </div>
         </div>
 
-        {viewContent.map((i, index) => {
+        {/* {viewContent.map((i, index) => {
             return (
               <div key={index} className="flex justify-between p-4 shadow-md ">
                 <div className="flex items-center mb-2 gap-6">
@@ -105,11 +123,35 @@ function App() {
                   <div className="flex items-center gap-1 ">
                     <p className="text-sm text-gray-500">{formatDate(i.date)}</p>
                     <button className=" text-gray-500 px-1  rounded-md">수정</button>
-                    <button className=" text-gray-500 px-1  rounded-md">삭제</button>
+                    <button onClick={() => {console.log("삭제요청ID:", i.id); boardDelete(i.id)} } className=" text-gray-500 px-1  rounded-md">삭제</button>
                   </div>
               </div>
             )
-        })}
+        })} */}
+
+        <table className='w-full border-collapse border '>
+          <thead>
+            <tr>
+              <th className='border border-gray-300 p-2'>번호</th>
+              <th className='border border-gray-300 p-2'>제목</th>
+              <th className='border border-gray-300 p-2'>날짜</th>
+              <th className='border border-gray-300 p-2'>수정/삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {viewContent.map((i,index) => (
+              <tr key={index} className='text-center'>
+                <td className='border border-gray-300'>{i.id}</td>
+                <td className='border border-gray-300'>{i.title}</td>
+                <td className='border border-gray-300'>{formatDate(i.date)}</td>
+                <td className='border border-gray-300'>
+                  <button className='text-gray-500 px-1'>수정</button>
+                  <button onClick={() => {boardDelete(i.id);}} className='text-gray-500 px-1'>삭제</button>
+                </td>
+              </tr>  
+            ))}
+          </tbody>
+        </table>
       </div>
   );
 }
