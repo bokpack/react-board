@@ -4,7 +4,7 @@ import { useState, useEffect,  } from 'react';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { fetchBoardList, createBoard, deleteBoard } from './services/api';
+import { fetchBoardList, createBoard, deleteBoard, updateBoard } from './services/api';
 import { useNavigate } from 'react-router-dom';
 
 function App() {
@@ -37,8 +37,14 @@ function App() {
       .catch((err) => console.error("게시글 삭제 실패:", err));
   };
 
-  const handleUpdate = (id) => {
-    navigate(`/update/${id}`)
+  const handleUpdate = (data) => {
+    const { id, title, content } = data;
+    updateBoard(id, {title, content})
+      .then(() => {
+        loadPosts();
+        navigate("/");
+      })
+      .catch((err) => console.error("게시글 수정 실패 : ", err))
   }
 
   return (
@@ -74,7 +80,7 @@ function App() {
           />
           <Route
               path='/update/:id'
-              element={<BoardWrite posts={posts} onSubmit={handleCreate}/>}
+              element={<BoardWrite posts={posts} onSubmit={handleUpdate}/>}
           />
       </Routes>
     </div>

@@ -30,18 +30,18 @@ app.use((req, res, next) => {
 app.post("/api/insert", (req, res) => {
     const title = req.body.title;
     const content = req.body.content;
-    const date = req.body.date;
-    
-    const sqlQuery = "INSERT INTO board (title, content, date) VALUES (?,?,?)";
-    db.query(sqlQuery, [title, content, date], (err, result) => {
+
+    const sqlQuery = "INSERT INTO board (title, content, date) VALUES (?, ?, NOW())"; 
+    db.query(sqlQuery, [title, content], (err, result) => {
         if (err) {
-            console.error("MySQL 쿼리 오류: ", err);  // 오류를 콘솔에 출력
-            return res.status(500).send('서버 오류');
+            console.error("MySQL 쿼리 오류: ", err); // 에러 로그 출력
+            return res.status(500).send("서버 오류");
         }
-        console.log('데이터 삽입 성공:', result);
-        res.send('succ');
+        console.log("데이터 삽입 성공:", result);
+        res.send("succ");
     });
 });
+
 
 // GET 게시글 전체 조회
 app.get("/api/get", (req,res) => {
@@ -52,13 +52,20 @@ app.get("/api/get", (req,res) => {
 })
 
 // UPDATE 게시글 수정
-// app.get("/api/update", (req,res) => {
-//     const title = req.body.title;
-//     const content = req.body.content;
-//     const date = req.body.date;
+app.put("/api/update/:id", (req,res) => {
+    const id = req.params.id;
+    const { title, content } = req.body;
 
-//     const sqlQuery =    `UPDATE BOARD SET `
-// })
+    const sqlQuery = "UPDATE board SET title = ?, content = ? WHERE id = ? ";
+    db.query(sqlQuery, [title, content, id], (err, result) => {
+        if(err) {
+            console.log("MYSQL 쿼리 오류: ", err);
+            return res.status(500).send("서버오류")
+        }
+        console.log("게시글 수정 성공 : ", result);
+        res.send("success")
+    })
+})
 
 // DELETE 게시글 삭제
 app.delete("/api/delete/:id", (req,res) => {

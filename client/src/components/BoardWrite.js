@@ -21,13 +21,15 @@ const BoardWrite = ({ posts,onSubmit }) => {
 
     const handleSubmit = () => {
         if (formData.title && formData.content) {
-            const updatePost = {...formData, id: parseInt(id,10)}
-            onSubmit(updatePost);
-            navigate("/")
+            const updatePost = { ...formData, id: parseInt(id, 10) };
+            onSubmit(updatePost); 
+            navigate("/");
         } else {
-            alert("제목과 내용을 입력해주세요 ~ ")
+            alert("제목과 내용을 입력해주세요 ~");
         }
     };
+    
+    
 
     return (
         <div className="p-4">
