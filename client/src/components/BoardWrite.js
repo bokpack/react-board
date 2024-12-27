@@ -48,7 +48,7 @@ const BoardWrite = ({ posts,onSubmit }) => {
                 className="border p-2 w-full mb-2"
             />
             <button onClick={handleSubmit} className="bg-blue-400 text-white p-2 rounded">
-                등록
+                { id ? "수정" : "등록"}
             </button>
         </div>
     )

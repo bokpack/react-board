@@ -6,6 +6,7 @@ import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
 import { fetchBoardList, createBoard, deleteBoard, updateBoard } from './services/api';
 import { useNavigate } from 'react-router-dom';
+import Login from './components/Login';
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -66,6 +67,11 @@ function App() {
             </div>
           }
         />
+
+        <Route 
+            path='/login'
+            element={<Login />}
+            />
           <Route
             path='/'
             element={<BoardList posts={posts} onDelete={handleDelete} />}
