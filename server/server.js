@@ -3,6 +3,7 @@ const cors = require('cors');
 const mysql = require('mysql')
 const app = express();
 const PORT = 8000;
+const bcrypt = require("bcrypt");
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -25,6 +26,48 @@ app.use((req, res, next) => {
     console.log(`요청경로: ${req.path}, 요청메소드: ${req.method}`);
     next();
 })
+
+// 사용자 로그인
+app.post("/api/login", (req, res) => {
+    const { email, password } = req.body;
+
+    console.log("로그인 요청 데이터:", { email, password });
+
+    if (!email || !password) {
+        return res.status(400).send({ success: false, message: "이메일과 비밀번호를 입력해주세요" });
+    }
+
+    const sqlQuery = "SELECT * FROM user WHERE email = ?";
+    db.query(sqlQuery, [email], async (err, result) => {
+        if (err) {
+            console.error("MYSQL 쿼리 오류:", err);
+            return res.status(500).send({ success: false, message: "서버 오류" });
+        }
+
+        if (result.length === 0) {
+            return res.status(400).send({ success: false, message: "사용자를 찾을 수 없습니다" });
+        }
+
+        const user = result[0];
+        try {
+            const isPasswordMatch = await bcrypt.compare(password, user.password);
+            if (!isPasswordMatch) {
+                return res.status(400).send({ success: false, message: "비밀번호가 일치하지 않습니다" });
+            }
+
+            console.log("로그인 성공");
+            res.send({
+                success: true, // 클라이언트가 성공 여부를 확인하기 위해 추가
+                message: "로그인 성공",
+                user: { id: user.id, name: user.name, email: user.email }
+            });
+        } catch (compareError) {
+            console.error("bcrypt 비교 오류:", compareError);
+            return res.status(500).send({ success: false, message: "비밀번호 비교 중 오류가 발생했습니다" });
+        }
+    });
+});
+
 
 // INSERT 게시글 등록
 app.post("/api/insert", (req, res) => {

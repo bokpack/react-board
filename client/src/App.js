@@ -51,44 +51,27 @@ function App() {
   return (
     <div className="App max-w-4xl mx-auto p-6 py-4">
        <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              <button
-                onClick={() => navigate("/insert")}
-                className="bg-green-600 p-2 border mb-4"
-              >
-                글쓰기
-              </button>
-
-              {/* 글 */}
-              <BoardList posts={posts} onDelete={handleDelete} />
-            </div>
-          }
-        />
-
-        <Route 
-            path='/login'
-            element={<Login />}
-            />
+        {/* 로그인 */}
+          <Route path="/" element={<Login />} />
+        {/* 로그인 후 게시판 화면 */}
           <Route
-            path='/'
-            element={<BoardList posts={posts} onDelete={handleDelete} />}
+              path="/board"
+              element={
+                  <div>
+                      <button
+                          onClick={() => navigate("/insert")}
+                          className="bg-green-600 p-2 border mb-4"
+                      >
+                          글쓰기
+                      </button>
+                      <BoardList posts={posts} onDelete={handleDelete} />
+                  </div>
+              }
           />
-          <Route
-              path="/insert"
-              element={<BoardWrite onSubmit={handleCreate} />}
-          />
-          <Route
-              path="/detail/:id"
-              element={<DetailBoard posts={posts} onDelete={handleDelete} />}
-          />
-          <Route
-              path='/update/:id'
-              element={<BoardWrite posts={posts} onSubmit={handleUpdate}/>}
-          />
-      </Routes>
+          <Route path="/insert" element={<BoardWrite onSubmit={handleCreate} />} />
+          <Route path="/detail/:id" element={<DetailBoard posts={posts} onDelete={handleDelete} />} />
+          <Route path="/update/:id" element={<BoardWrite posts={posts} onSubmit={handleUpdate} />} />
+       </Routes>
     </div>
   );
 }
