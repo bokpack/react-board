@@ -24,7 +24,7 @@ const DetailBoard = ({ posts, onDelete }) => {
     }
 
     const handleHome = () => {
-        navigate("/");
+        navigate("/board");
     }
 
     return (

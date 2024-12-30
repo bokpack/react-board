@@ -4,6 +4,8 @@ const mysql = require('mysql')
 const app = express();
 const PORT = 8000;
 const bcrypt = require("bcrypt");
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -13,11 +15,30 @@ const db = mysql.createConnection({
     database:"easyboard"
 })
 
-db.connect(err => { if (err) console.log("MySQL 연결 실패 : ", err); console.log("MySQL가 연결되었습니다!"); }) // 오류해결 https://www.inflearn.com/questions/3637
+db.connect(err => { if (err) console.log("MySQL 연결 실패 : ", err); console.log("MySQL가 연결되었습니다!"); });
+
+const sessionStore = new MySQLStore({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "ann123123",
+    database: "easyboard"
+});
+
+
+app.use(session({  
+    key: 'session_cookie_name',
+    secret: '~',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false
+
+}))
 
 app.use(cors({
     origin: "http://localhost:3000",
-    methods: ["GET", "POST", "DELETE", "PUT"]
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    credentials: true
 }));
 
 app.use(express.json());
@@ -49,24 +70,40 @@ app.post("/api/login", (req, res) => {
         }
 
         const user = result[0];
-        try {
-            const isPasswordMatch = await bcrypt.compare(password, user.password);
-            if (!isPasswordMatch) {
-                return res.status(400).send({ success: false, message: "비밀번호가 일치하지 않습니다" });
-            }
-
-            console.log("로그인 성공");
-            res.send({
-                success: true, // 클라이언트가 성공 여부를 확인하기 위해 추가
-                message: "로그인 성공",
-                user: { id: user.id, name: user.name, email: user.email }
-            });
-        } catch (compareError) {
-            console.error("bcrypt 비교 오류:", compareError);
-            return res.status(500).send({ success: false, message: "비밀번호 비교 중 오류가 발생했습니다" });
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+            return res.status(400).send({ success: false, message: "비밀번호가 일치하지 않습니다" });
         }
+
+        req.session.user = {
+            id : user.id,
+            name: user.name,
+            email:user.email
+        }
+        res.send({
+            success:true,
+            message:"로그인 성공",
+            user: req.session.user
+        })
+
+            
     });
 });
+
+// 로그인 상태 유지
+app.get("/api/session", (req,res) => {
+    if(req.session.user) {
+        res.send({
+            success:true,
+            user:req.session.user
+        });
+    } else {
+        res.send({
+            success:false,
+            message:"로그인되어있지않습니다."
+        })
+    }
+})
 
 
 // INSERT 게시글 등록
