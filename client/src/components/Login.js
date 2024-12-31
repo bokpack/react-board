@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { loginUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function Login({setIsAuthenticated}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -18,6 +18,7 @@ function Login() {
 
             if (response.data.success) {
                 alert(response.data.message);
+                setIsAuthenticated(true)
                 console.log("로그인 성공 사용자:", response.data.user);
                 navigate("/board");
             } else {

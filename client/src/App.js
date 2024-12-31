@@ -4,19 +4,31 @@ import { useState, useEffect,  } from 'react';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { fetchBoardList, createBoard, deleteBoard, updateBoard } from './services/api';
+import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession } from './services/api';
 import { useNavigate } from 'react-router-dom';
 import Login from './components/Login';
+import Logout from './components/Logout';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   
-
-
   useEffect(() => {
+    verifySession();
     loadPosts();
   }, []);
+
+  const verifySession = async() => {
+    try {
+      const response = await checkSession();
+      setIsAuthenticated(response.data.success);
+    } catch(err) {
+      console.error("세선 확인 실패 : ", err)
+      setIsAuthenticated(false)
+    }
+  }
 
   const loadPosts = () => {
     fetchBoardList()
@@ -52,11 +64,13 @@ function App() {
     <div className="App max-w-4xl mx-auto p-6 py-4">
        <Routes>
         {/* 로그인 */}
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+
         {/* 로그인 후 게시판 화면 */}
           <Route
               path="/board"
               element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
                   <div>
                       <button
                           onClick={() => navigate("/insert")}
@@ -64,13 +78,33 @@ function App() {
                       >
                           글쓰기
                       </button>
+                      <Logout />
                       <BoardList posts={posts} onDelete={handleDelete} />
                   </div>
+                </PrivateRoute>
               }
           />
-          <Route path="/insert" element={<BoardWrite onSubmit={handleCreate} />} />
-          <Route path="/detail/:id" element={<DetailBoard posts={posts} onDelete={handleDelete} />} />
-          <Route path="/update/:id" element={<BoardWrite posts={posts} onSubmit={handleUpdate} />} />
+          <Route 
+              path="/insert"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <BoardWrite onSubmit={handleCreate} />
+                </PrivateRoute>
+                } />
+          <Route
+              path="/detail/:id"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <DetailBoard posts={posts} onDelete={handleDelete} />
+                </PrivateRoute>
+                  } />
+          <Route
+              path="/update/:id"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <BoardWrite posts={posts} onSubmit={handleUpdate} />
+                </PrivateRoute>
+                  } />
        </Routes>
     </div>
   );

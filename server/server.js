@@ -90,6 +90,17 @@ app.post("/api/login", (req, res) => {
     });
 });
 
+// 로그아웃
+app.post("/api/logout", (req,res) => {
+    req.session.destroy(err => {
+        if(err) {
+            return res.status(500).send({success : false, message : "로그아웃 실패"});
+        }
+        res.clearCookie("session_cookie_name")
+        res.send({success : true, message:"로그아웃 성공"})
+    })
+})
+
 // 로그인 상태 유지
 app.get("/api/session", (req,res) => {
     if(req.session.user) {
@@ -104,6 +115,8 @@ app.get("/api/session", (req,res) => {
         })
     }
 })
+
+
 
 
 // INSERT 게시글 등록
