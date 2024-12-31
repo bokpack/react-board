@@ -19,6 +19,6 @@ function Logout() {
             alert("로그아웃 처리중 오류가 발생했습니다")
         }
     };
-    return <button onClick={handleLogout}>로그아웃웃</button>
+    return <button onClick={handleLogout} className="border rounded p-2">로그아웃</button>
 }
 export default Logout;

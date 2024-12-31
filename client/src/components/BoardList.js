@@ -14,6 +14,7 @@ const BoardList = ({ posts }) => {
                 <tr>
                     <th className="border p-2">번호</th>
                     <th className="border p-2">제목</th>
+                    <th className="border p-2">작성자</th>
                     <th className="border p-2">날짜</th>
                     
                 </tr>
@@ -23,6 +24,7 @@ const BoardList = ({ posts }) => {
                     <tr key={post.id} onClick={() => handleClick(post.id)} className="cursor-pointer hover:bg-violet-200 text-center">
                         <td className="border p-2">{post.id}</td>
                         <td className="border p-2">{post.title}</td>
+                        <td className="border p-2">{post.writer}</td>
                         <td className="border p-2">{formatDate(post.date)}</td>
                     </tr>
                 ))}

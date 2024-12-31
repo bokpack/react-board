@@ -30,9 +30,9 @@ const DetailBoard = ({ posts, onDelete }) => {
     return (
         <div className="p-4 border">
             <h1 className="text-xl font-bold mb-4">{post.title}</h1>
+            <p>작성자 : {post.writer}</p>
             <p>작성일: {formatDate(post.date)}</p>
-            <p>내용</p>
-            <p>{post.content}</p>
+            <p>내용 : {post.content}</p>
             <div className="flex gap-3">
                 <button onClick={handleDelete} className="p-2 rounded-sm bg-blue-400 text-white ">삭제</button>
                 <button onClick={handleUpdate} className="p-2 rounded-sm bg-blue-400 text-white ">수정</button>

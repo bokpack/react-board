@@ -121,11 +121,15 @@ app.get("/api/session", (req,res) => {
 
 // INSERT 게시글 등록
 app.post("/api/insert", (req, res) => {
-    const title = req.body.title;
-    const content = req.body.content;
+    const { title, content } = req.body;
+    const userId = req.session.user?.id;
 
-    const sqlQuery = "INSERT INTO board (title, content, date) VALUES (?, ?, NOW())"; 
-    db.query(sqlQuery, [title, content], (err, result) => {
+    if(!userId) {
+        return res.status(401).send({success : false , message : "로그인 필요"})
+    }
+
+    const sqlQuery = "INSERT INTO board (title, content, date, user_id) VALUES (?, ?, NOW(), ?)"; 
+    db.query(sqlQuery, [title, content, userId], (err, result) => {
         if (err) {
             console.error("MySQL 쿼리 오류: ", err); // 에러 로그 출력
             return res.status(500).send("서버 오류");
@@ -138,8 +142,15 @@ app.post("/api/insert", (req, res) => {
 
 // GET 게시글 전체 조회
 app.get("/api/get", (req,res) => {
-    const sqlQuery = "SELECT * FROM board;";
+    const sqlQuery = 
+        `SELECT b.id, b.title, b.content, b.date, u.name AS writer
+        FROM board b 
+        JOIN user u ON b.user_id = u.id `;
     db.query(sqlQuery, (err, result)=> {
+        if(err) {
+            console.error("MySQL 쿼리 오류 : ", err);
+            return res.status(500).send("서버오류")
+        }
         res.send(result);
     })
 })
