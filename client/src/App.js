@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import PrivateRoute from './components/PrivateRoute';
+import NavBar from './components/NavBar';
+import SignUp from './components/SignUp';
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -62,6 +64,7 @@ function App() {
 
   return (
     <div className="App max-w-4xl mx-auto p-6 py-4">
+      <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
        <Routes>
         {/* 로그인 */}
           <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
@@ -105,6 +108,7 @@ function App() {
                   <BoardWrite posts={posts} onSubmit={handleUpdate} />
                 </PrivateRoute>
                   } />
+          <Route path='/signup' element={<SignUp/>}/>
        </Routes>
     </div>
   );
