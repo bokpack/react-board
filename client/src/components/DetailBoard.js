@@ -33,11 +33,14 @@ const DetailBoard = ({ posts, onDelete }) => {
             <p>작성자 : {post.writer}</p>
             <p>작성일: {formatDate(post.date)}</p>
             <p>내용 : {post.content}</p>
-            <div className="flex gap-3">
+            {onDelete && (
+                <div className="flex gap-3">
                 <button onClick={handleDelete} className="p-2 rounded-sm bg-blue-400 text-white ">삭제</button>
                 <button onClick={handleUpdate} className="p-2 rounded-sm bg-blue-400 text-white ">수정</button>
-                <button onClick={handleHome} className="p-2 rounded-sm bg-blue-400 text-white ">홈으로</button>
+                {/* <button onClick={handleHome} className="p-2 rounded-sm bg-blue-400 text-white ">홈으로</button> */}
             </div>
+            )}
+            
         </div>
     )
     

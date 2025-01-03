@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect,  } from 'react';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
@@ -7,7 +7,7 @@ import DetailBoard from './components/DetailBoard';
 import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession } from './services/api';
 import { useNavigate } from 'react-router-dom';
 import Login from './components/Login';
-import Logout from './components/Logout';
+
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
 import SignUp from './components/SignUp';
@@ -25,6 +25,7 @@ function App() {
   const verifySession = async() => {
     try {
       const response = await checkSession();
+      console.log("세션 확인 응담 : ", response.data)
       setIsAuthenticated(response.data.success);
     } catch(err) {
       console.error("세선 확인 실패 : ", err)
@@ -62,53 +63,55 @@ function App() {
       .catch((err) => console.error("게시글 수정 실패 : ", err))
   }
 
+  const handleWriteClick = () => {
+    if(isAuthenticated) {
+      navigate("/insert")
+    } else {
+      alert("글쓰기를 하려면 로그인이 필요합니다!")
+      navigate("/login")
+    }
+  }
+
   return (
-    <div className="App max-w-4xl mx-auto p-6 py-4">
+    <div className="App mx-auto p-6 py-4 ">
       <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
        <Routes>
-        {/* 로그인 */}
-          <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+          <Route path="/" element={<Navigate to="/board" replace />}/>
 
-        {/* 로그인 후 게시판 화면 */}
-          <Route
-              path="/board"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <div>
-                      <button
-                          onClick={() => navigate("/insert")}
-                          className="bg-green-600 p-2 border mb-4"
-                      >
-                          글쓰기
-                      </button>
-                      <Logout />
-                      <BoardList posts={posts} onDelete={handleDelete} />
-                  </div>
-                </PrivateRoute>
-              }
-          />
+          <Route path="/board" element={
+            <div>
+              <BoardList posts={posts} onDelete={isAuthenticated ? handleDelete : null}/>
+              <div className='flex justify-end mt-4'>
+                  <button onClick={handleWriteClick} className='bg-blue-400 text-white p-2 border-2 rounded mb-4 hover:bg-white hover:text-blue-400 hover:border-blue-400'
+                    >글쓰기</button>
+              </div>
+            </div>
+          } />
+
+        {/* 로그인*/}
+          <Route path='/login' element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
+        {/* 회원가입 */}
+          <Route path='/signup' element={<SignUp />}/>
+        {/* 글쓰기 */}
           <Route 
               path="/insert"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <BoardWrite onSubmit={handleCreate} />
-                </PrivateRoute>
+                <BoardWrite onSubmit={handleCreate} isAuthenticated={isAuthenticated} />
                 } />
+        {/*게시글 상세보기*/}
           <Route
               path="/detail/:id"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <DetailBoard posts={posts} onDelete={handleDelete} />
-                </PrivateRoute>
+                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} />
                   } />
+        {/* 게시글 수정 */}
           <Route
               path="/update/:id"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <BoardWrite posts={posts} onSubmit={handleUpdate} />
+                  <BoardWrite posts={posts} onSubmit={handleUpdate} isAuthenticated={isAuthenticated} />
                 </PrivateRoute>
                   } />
-          <Route path='/signup' element={<SignUp/>}/>
        </Routes>
     </div>
   );

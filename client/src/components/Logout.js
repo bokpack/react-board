@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../services/api";
 
-function Logout() {
+function Logout({setIsAuthenticated}) {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -10,6 +10,7 @@ function Logout() {
             console.log("로그아웃 응답 : ", response.data)
             if (response.data.success) {
                 alert(response.data.message);
+                setIsAuthenticated(false)
                 navigate("/")
             } else {
                 alert("로그아웃 실패 : " + response.data.message);

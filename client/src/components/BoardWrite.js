@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const BoardWrite = ({ posts,onSubmit }) => {
+const BoardWrite = ({ posts,onSubmit, isAuthenticated  }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({title : "", content : ""});
+
+    useEffect(() => {
+        if(!isAuthenticated) {
+            alert("글쓰기를 하려면 로그인이 필요합니다")
+            navigate("/login")
+        }
+    }, [isAuthenticated, navigate])
 
     useEffect(()=> {
         if(id) {
@@ -20,6 +27,7 @@ const BoardWrite = ({ posts,onSubmit }) => {
     }
 
     const handleSubmit = () => {
+
         if (formData.title && formData.content) {
             const updatePost = { ...formData, id: parseInt(id, 10) };
             onSubmit(updatePost); 

@@ -31,33 +31,36 @@ function Login({setIsAuthenticated}) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-4 bg-red-300 p-4 rounded">
-                <h2>Login</h2>
+        <div className="flex justify-center items-center min-h-screen bg-gray-200">
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border w-96">
+            <div className="flex flex-col items-center gap-4 ">
+                <p className="text-2xl font-bold">로그인</p>
                 <div>
-                    <label>이메일:</label>
+                    {/* <label>이메일:</label> */}
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="example@example.com"
-                        className="border"
+                        placeholder="이메일을 입력해주세요."
+                        className="border w-80 h-10 rounded"
                     />
                 </div>
                 <div>
-                    <label>비밀번호:</label>
+                    {/* <label>비밀번호:</label> */}
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="border"
+                        className="border w-80 h-10 rounded"
+                        placeholder="비밀번호를 입력해주세요."
                     />
                 </div>
                 <div>
-                    <button className="bg-green-500 text-white p-1 rounded">로그인</button>
+                    <button className="bg-green-500 text-white w-80 h-8  p-1 rounded">로그인</button>
                 </div>
             </div>
-        </form>
+            </form>
+        </div>
     );
 }
 
