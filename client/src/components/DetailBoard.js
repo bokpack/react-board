@@ -28,22 +28,30 @@ const DetailBoard = ({ posts, onDelete }) => {
     }
 
     return (
-        <div className="p-4 border">
-            <h1 className="text-xl font-bold mb-4">{post.title}</h1>
-            <p>작성자 : {post.writer}</p>
-            <p>작성일: {formatDate(post.date)}</p>
-            <p>내용 : {post.content}</p>
-            {onDelete && (
-                <div className="flex gap-3">
-                <button onClick={handleDelete} className="p-2 rounded-sm bg-blue-400 text-white ">삭제</button>
-                <button onClick={handleUpdate} className="p-2 rounded-sm bg-blue-400 text-white ">수정</button>
-                {/* <button onClick={handleHome} className="p-2 rounded-sm bg-blue-400 text-white ">홈으로</button> */}
+        <div className="">
+            <p className='text-4xl text-gray-600 p-2'>VIEW</p>
+            <div className="border rounded border-indigo-300">
+                <p className="border-b border-indigo-300 p-2 text-indigo-400">{post.title}</p>
+                <p className="border-b border-indigo-300 p-2 text-indigo-400">작성자 : <span
+                    className="text-gray-500">{post.writer}</span></p>
+                <p className="border-b border-indigo-300 p-2 text-indigo-400">작성일: <span
+                    className="text-gray-500">{formatDate(post.date)}</span></p>
+                <p className="p-2 text-gray-500"> {post.content}</p>
+
+                {onDelete && (
+                    <div className="flex gap-3 p-4 justify-center">
+                        <button onClick={handleHome} className="p-2 rounded-sm bg-lime-400 text-white ">목록</button>
+                        <button onClick={handleDelete} className="p-2 rounded-sm bg-indigo-400 text-white ">삭제</button>
+                        <button onClick={handleUpdate} className="p-2 rounded-sm bg-indigo-400 text-white ">수정</button>
+
+                    </div>
+                )}
             </div>
-            )}
-            
+
+
         </div>
     )
-    
+
 }
 
 export default DetailBoard;

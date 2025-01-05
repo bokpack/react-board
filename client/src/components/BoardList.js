@@ -51,7 +51,7 @@ const BoardList = ({ posts }) => {
                     이전
                 </button>
                 {[...Array(totalPages)].map((_, index) =>(
-                    <button key={index} onClick={()=> paginate(index + 1)} className={`px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                    <button key={index} onClick={()=> paginate(index + 1)} className={`px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-700'}`}>
                         {index + 1}
                     </button>
                 ))}

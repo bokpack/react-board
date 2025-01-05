@@ -4,7 +4,7 @@ import Logout from "./Logout";
 
 const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
     return (
-        <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
+        <nav className="flex justify-between items-center p-4 bg-indigo-400 text-white">
         <Link to="/" className="text-lg font-bold hover:text-gray-300">
           홈
         </Link>

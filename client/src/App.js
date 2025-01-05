@@ -82,7 +82,7 @@ function App() {
             <div>
               <BoardList posts={posts} onDelete={isAuthenticated ? handleDelete : null}/>
               <div className='flex justify-end mt-4'>
-                  <button onClick={handleWriteClick} className='bg-blue-400 text-white p-2 border-2 rounded mb-4 hover:bg-white hover:text-blue-400 hover:border-blue-400'
+                  <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
                     >글쓰기</button>
               </div>
             </div>
