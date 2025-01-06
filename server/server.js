@@ -143,7 +143,7 @@ app.post("/api/insert", (req, res) => {
 // GET 게시글 전체 조회
 app.get("/api/get", (req,res) => {
     const sqlQuery = 
-        `SELECT b.id, b.title, b.content, b.date, u.name AS writer
+        `SELECT b.id, b.title, b.content, b.date, b.view_count, u.name AS writer
         FROM board b 
         JOIN user u ON b.user_id = u.id `;
     db.query(sqlQuery, (err, result)=> {
@@ -185,6 +185,29 @@ app.delete("/api/delete/:id", (req,res) => {
         res.send(result);
     })
 })
+
+// GET 게시글 상세조회 및 조회수
+app.get("/api/detail/:id", (req, res) => {
+    const { id } = req.params;
+
+    const incrementQuery = "UPDATE board SET view_count = view_count + 1 WHERE id = ?";
+    const selectQuery = ` SELECT b.id, b.title, b.date, b.view_count, u.name AS writer
+                            FROM board b JOIN user u ON b.user_id = u.id WHERE b.id = ?`;
+    db.query(incrementQuery, [id], (err) => {
+        if(err) {
+            console.error("조회수 증가 실패 : ", err);
+            return res.status(500).send("조회수 증가 실패")
+        }
+        db.query(selectQuery , [id], (err, result) => {
+            if(err) {
+                console.error("게시글 조회 실패 : ", err);
+                return res.status(500).send("게시글 조회 실패")
+            }
+            res.send(result[0]);
+        })
+    })
+})
+
 
 app.listen(PORT, ()=>{
     console.log(`포트 ${PORT}번으로 서버를 열었습니다.`);

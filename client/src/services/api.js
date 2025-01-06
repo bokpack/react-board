@@ -7,6 +7,8 @@ export const fetchBoardList = () => Axios.get(`${API_URL}/get` , {withCredential
 export const createBoard = (data) => Axios.post(`${API_URL}/insert`,data , {withCredentials : true});
 export const deleteBoard = (id) => Axios.delete(`${API_URL}/delete/${id}` , {withCredentials : true});
 export const updateBoard = (id, data) => Axios.put(`${API_URL}/update/${id}`, data , {withCredentials : true});
+export const fetchBoardDetail = (id) => Axios.get(`${API_URL}/detail/${id}`, { withCredentials: true });
+
 
 // 로그인
 export const loginUser = (data) => Axios.post(`${API_URL}/login`, data , {withCredentials : true});

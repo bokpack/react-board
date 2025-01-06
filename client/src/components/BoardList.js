@@ -1,11 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const BoardList = ({ posts }) => {
+const BoardList = ({ posts, loadPosts }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 10;
     const formatDate = (dateStr) => new Date(dateStr).toLocaleString("ko-KR");
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if(location.state?.reload) {
+            loadPosts();
+        }
+    }, [location, loadPosts]);
 
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -31,6 +38,7 @@ const BoardList = ({ posts }) => {
                         <th className="border-b p-2">No</th>
                         <th className="border-b p-2">글제목</th>
                         <th className="border-b p-2">작성자</th>
+                        <th className="border-b p-2">조회수</th>
                         <th className="border-b p-2">작성일</th>
 
                     </tr>
@@ -41,6 +49,7 @@ const BoardList = ({ posts }) => {
                             <td className="border-b p-2">{post.id}</td>
                             <td className="border-b p-2">{post.title}</td>
                             <td className="border-b p-2">{post.writer}</td>
+                            <td className="border-b p-2">{post.view_count}</td>
                             <td className="border-b p-2">{formatDate(post.date)}</td>
                         </tr>
                     ))}

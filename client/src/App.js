@@ -80,7 +80,7 @@ function App() {
 
           <Route path="/board" element={
             <div>
-              <BoardList posts={posts} onDelete={isAuthenticated ? handleDelete : null}/>
+              <BoardList posts={posts} loadPosts={loadPosts} onDelete={isAuthenticated ? handleDelete : null}/>
               <div className='flex justify-end mt-4'>
                   <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
                     >글쓰기</button>
@@ -102,7 +102,7 @@ function App() {
           <Route
               path="/detail/:id"
               element={
-                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} />
+                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} />
                   } />
         {/* 게시글 수정 */}
           <Route
