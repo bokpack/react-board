@@ -208,6 +208,58 @@ app.get("/api/detail/:id", (req, res) => {
     })
 })
 
+// GET 댓글 조회회
+app.get("/api/comments/:postId", (req,res) => {
+    const {postId} = req.params;
+    const sqlQuery = `SELECT c.id ,c.content , c.date, u.name AS writer
+                      FROM comments c
+                      JOIN user u ON c.user_id = u.id
+                      WHERE c.board_id = ?
+                      ORDER BY c.date ASC`;
+    db.query(sqlQuery, [postId], (err,results) => {
+        if (err) {
+            console.error("댓글 조회 실패 : ", err);
+            return res.status(500).send("댓글 조회 실패")
+        }
+        res.send(results)
+    })
+})
+
+//POST 댓글 등록
+app.post("/api/comment/:postId", (req,res) => {
+    const {postId} = req.params;
+    const {content} = req.body;
+    const userId = req.session.user?.id;
+
+    if(!userId) {
+        return res.status(400).send({success : false, message: "로그인이 필요합니다"})
+    }
+    const sqlQuery = "INSERT INTO comments (board_id, user_id, content, date) VALUES (?,?,?,NOW())";
+    db.query(sqlQuery, [postId, userId, content], (err, result) => {
+        if(err) {
+            console.error("댓글 등록 실패 : ",err);
+            return res.status(500).send("댓글 등록 실패")
+        }
+        res.send({success: true, commendId : result.insertId})
+    })
+})
+
+// UPDATE 댓글 수정 
+app.put("/api/comment/:commentId", (req,res) => {
+    const {commentId} = req.params;
+    const {content} = req.body;
+
+    const sqlQuery = "UPDATE comments SET content = ? , date = NOW() WHERE id = ? ";
+    db.query(sqlQuery , [content, commentId], (err,result) => {
+        if(err) {
+            console.log("MYSQL 쿼리 오류 : ", err);
+            return res.status(500).send("서버오류")
+        }
+        console.log("댓글 수정 완료 : ", result);
+        res.send("success")
+    })
+})
+
 
 app.listen(PORT, ()=>{
     console.log(`포트 ${PORT}번으로 서버를 열었습니다.`);

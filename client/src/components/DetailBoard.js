@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"; 
-import { fetchBoardDetail } from "../services/api";
+import { addComment, fetchBoardDetail, fetchComments } from "../services/api";
+import Comment from "./Comment";
 
-const DetailBoard = ({ onDelete, isAuthenticated }) => {
+const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post,setPost] = useState(null);
     const fetchOnce = useRef(false); // 조회수가 2씩 증가하는 걸 방지하기 위함함
+    
 
     useEffect(() => {
         const fetchDetail = async () => {
             try {
                 const response = await fetchBoardDetail(id);
                 setPost(response.data);
+
             } catch (err) {
                 console.error("게시글 상세조회 실패 : ", err);
                 alert("게시글을 불러오는 중 오류가 발생했습니다.")
@@ -42,6 +45,9 @@ const DetailBoard = ({ onDelete, isAuthenticated }) => {
     const handleHome = () => {
         navigate("/board", {state : {reload : true}});
     }
+
+    
+
     const formatDate = (dateStr) => new Date(dateStr).toLocaleString("ko-KR");
 
     if (!post) {
@@ -71,8 +77,7 @@ const DetailBoard = ({ onDelete, isAuthenticated }) => {
                     )}
                 </div>
             </div>
-
-
+            <Comment postId={id} isAuthenticated={isAuthenticated} user={user}></Comment>
         </div>
     )
 

@@ -16,3 +16,8 @@ export const loginUser = (data) => Axios.post(`${API_URL}/login`, data , {withCr
 export const logoutUser = () => Axios.post(`${API_URL}/logout`, {} , {withCredentials : true})
 //세션 유지
 export const checkSession = () => Axios.get(`${API_URL}/session`, {withCredentials : true})
+
+// 댓글
+export const fetchComments = (postId) => Axios.get(`${API_URL}/comments/${postId}`, {withCredentials : true});
+export const addComment = (postId, data) => Axios.post(`${API_URL}/comment/${postId}`, data,{withCredentials : true})
+export const updateComment = (commentId,data) => Axios.put(`${API_URL}/comment/${commentId}`, data,{withCredentials : true})

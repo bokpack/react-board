@@ -15,6 +15,7 @@ import SignUp from './components/SignUp';
 function App() {
   const [posts, setPosts] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [sessionUser, setSessionUser] = useState(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -27,9 +28,15 @@ function App() {
       const response = await checkSession();
       console.log("세션 확인 응담 : ", response.data)
       setIsAuthenticated(response.data.success);
+      if(response.data.success) {
+        setSessionUser(response.data.user); // 사용자 정보 저장
+      } else {
+        setSessionUser(null);
+      }
     } catch(err) {
       console.error("세선 확인 실패 : ", err)
       setIsAuthenticated(false)
+      setSessionUser(null);
     }
   }
 
@@ -102,7 +109,7 @@ function App() {
           <Route
               path="/detail/:id"
               element={
-                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} />
+                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} user={sessionUser} />
                   } />
         {/* 게시글 수정 */}
           <Route
