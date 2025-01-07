@@ -211,7 +211,7 @@ app.get("/api/detail/:id", (req, res) => {
 // GET 댓글 조회회
 app.get("/api/comments/:postId", (req,res) => {
     const {postId} = req.params;
-    const sqlQuery = `SELECT c.id ,c.content , c.date, u.name AS writer
+    const sqlQuery = `SELECT c.id ,c.content ,c.date, u.name AS writer
                       FROM comments c
                       JOIN user u ON c.user_id = u.id
                       WHERE c.board_id = ?
@@ -221,7 +221,7 @@ app.get("/api/comments/:postId", (req,res) => {
             console.error("댓글 조회 실패 : ", err);
             return res.status(500).send("댓글 조회 실패")
         }
-        res.send(results)
+        res.send({success : true, data : results})
     })
 })
 
@@ -240,25 +240,66 @@ app.post("/api/comment/:postId", (req,res) => {
             console.error("댓글 등록 실패 : ",err);
             return res.status(500).send("댓글 등록 실패")
         }
-        res.send({success: true, commendId : result.insertId})
+        const selectQuery = `
+            SELECT c.id, c.content, c.date, u.name AS writer
+            FROM comments c
+            JOIN user u ON c.user_id = u.id
+            WHERE c.id = ?
+        `;
+        db.query(selectQuery, [result.insertId], (err, rows) => {
+            if (err) {
+                console.error("댓글 조회 실패:", err);
+                return res.status(500).send("댓글 조회 실패");
+            }
+        res.send({success: true, comment : rows[0]})
     })
 })
+});
 
 // UPDATE 댓글 수정 
-app.put("/api/comment/:commentId", (req,res) => {
-    const {commentId} = req.params;
-    const {content} = req.body;
+app.put("/api/comment/:commentId", (req, res) => {
+    const { commentId } = req.params;
+    const { content } = req.body;
 
-    const sqlQuery = "UPDATE comments SET content = ? , date = NOW() WHERE id = ? ";
-    db.query(sqlQuery , [content, commentId], (err,result) => {
-        if(err) {
-            console.log("MYSQL 쿼리 오류 : ", err);
-            return res.status(500).send("서버오류")
+    if (!commentId || isNaN(Number(commentId))) {
+        console.error("유효하지 않은 댓글 id : ", commentId);
+        return res.status(400).send({ success: false, message: "잘못된 댓글 id 입니다" });
+    }
+
+    const sqlQuery = `
+        UPDATE comments 
+        SET content = ?, date = NOW() 
+        WHERE id = ?
+    `;
+
+    db.query(sqlQuery, [content, commentId], (err, result) => {
+        if (err) {
+            console.error("MYSQL 쿼리 오류 : ", err);
+            return res.status(500).send("서버 오류");
         }
-        console.log("댓글 수정 완료 : ", result);
-        res.send("success")
-    })
-})
+
+        // 수정된 댓글 데이터를 다시 조회
+        const selectQuery = `
+            SELECT c.id, c.content, c.date, u.name AS writer
+            FROM comments c
+            JOIN user u ON c.user_id = u.id
+            WHERE c.id = ?
+        `;
+
+        db.query(selectQuery, [commentId], (err, rows) => {
+            if (err) {
+                console.error("수정된 댓글 조회 실패 : ", err);
+                return res.status(500).send("수정된 댓글 조회 실패");
+            }
+
+            res.send({
+                success: true,
+                comment: rows[0], // 수정된 댓글 데이터 반환
+            });
+        });
+    });
+});
+
 
 
 app.listen(PORT, ()=>{
