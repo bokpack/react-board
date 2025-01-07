@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchComments, updateComment, addComment } from "../services/api";
+import { fetchComments, updateComment, addComment, deleteComment } from "../services/api";
 
 const Comment = ({ postId, isAuthenticated, user }) => {
   const [comments, setComments] = useState([]);
@@ -103,6 +103,22 @@ const Comment = ({ postId, isAuthenticated, user }) => {
       alert("댓글 수정 중 오류가 발생하였습니다.");
   }
 };
+  const handleDeleteComment = async (commentId) => {
+      if(!window.confirm("댓글을 삭제하시겠습니까?")) {
+          return;
+      }
+      try {
+          const response = await deleteComment(commentId);
+          if(response.data.success) {
+           setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId))
+          } else {
+              alert(response.data.message || "댓글 삭제 실패");
+          }
+      } catch (err) {
+          console.error("댓글 삭제 실패 : ", err);
+          alert("댓글 삭제 증 오류가 발생하였습니다.")
+      }
+  }
   return (
     <div className="mt-6">
       <p className="text-2xl text-gray-600 p-2">댓글</p>
@@ -136,15 +152,23 @@ const Comment = ({ postId, isAuthenticated, user }) => {
                 <p>{comment.content}</p>
                 <p className="text-gray-400 text-sm">{console.log("Date to format : ", comment.date)}{formatDate(comment.date)}</p>
                 {isAuthenticated && user?.name === comment.writer && (
-                  <button
-                    onClick={() => {
-                      setEditingCommentId(comment.id);
-                      setEditingContent(comment.content);
-                    }}
-                    className="mt-2"
-                  >
-                    수정
-                  </button>
+                    <div className="mt-2 flex gap-2">
+                        <button
+                            onClick={() => {
+                                setEditingCommentId(comment.id);
+                                setEditingContent(comment.content);
+                            }}
+                            className="text-gray-500"
+                        >
+                            수정
+                        </button>
+                        <button
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="text-gray-500"
+                        >
+                            삭제
+                        </button>
+                    </div>
                 )}
               </>
             )}

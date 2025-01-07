@@ -1,26 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const BoardList = ({ posts, loadPosts }) => {
+const BoardList = ({ posts, loadPosts, searchQuery, searchField }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 10;
     const formatDate = (dateStr) => new Date(dateStr).toLocaleString("ko-KR");
     const navigate = useNavigate();
-    const location = useLocation();
 
-    useEffect(() => {
-        if(location.state?.reload) {
-            loadPosts();
+    const filteredPosts = posts.filter((post) => {
+        if (searchField === "title") {
+            return post.title.includes(searchQuery);
+        } else if (searchField === "content") {
+            return post.content.includes(searchQuery);
+        } else if (searchField === "writer") {
+            return post.writer.includes(searchQuery);
         }
-    }, [location, loadPosts]);
+        return true;
+    });
 
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const totalPosts = posts.length;
+    const totalPosts = filteredPosts.length;
     const totalPages = Math.ceil(totalPosts / postsPerPage);
     const handleClick = (id) => {
         navigate(`/detail/${id}`)

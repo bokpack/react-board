@@ -300,6 +300,58 @@ app.put("/api/comment/:commentId", (req, res) => {
     });
 });
 
+// DELETE 댓글 삭제
+app.delete("/api/comment/:commentId", (req,res) => {
+    const { commentId } = req.params;
+    const userId = req.session.user?.id;
+
+    if(!userId) {
+        return res.status(401).send({success : false, message : "로그인이 필요합니다"})
+    }
+
+    const checkQuery = "SELECT user_id FROM comments WHERE id = ?";
+    db.query(checkQuery, [commentId], (err, results) => {
+        if(err) {
+            console.error("댓글 작성자 확인 실패 : ", err);
+            return res.status(500).send("서버오류")
+        }
+        if(results.length === 0) {
+            return  res.status(404).send({success : false, message : "댓글을 찾을 수 없습니다"})
+        }
+
+        const deleteQuery = "DELETE FROM comments WHERE id = ?";
+        db.query(deleteQuery, [commentId], (err, results) => {
+            if(err) {
+                console.error("댓글 삭제 실패 : ", err);
+                return res.status(500).send("댓글 삭제 실패")
+            }
+            res.send({success : true, message : "댓글이 삭제되었습니다"})
+        })
+    })
+})
+
+// GET 게시글 검색
+app.get("/api/search", (req, res) => {
+    const { query, field } = req.query;
+
+    if (!query || !field) {
+        return res.status(400).send({ success: false, message: "검색어와 필드를 입력해주세요" });
+    }
+
+    let sqlQuery = `SELECT b.id, b.title, b.content, b.date, b.view_count, u.name AS writer
+                    FROM board b
+                    JOIN user u ON b.user_id = u.id
+                    WHERE ${field} LIKE ?`;
+
+    db.query(sqlQuery, [`%${query}%`], (err, result) => {
+        if (err) {
+            console.error("검색 오류:", err);
+            return res.status(500).send("서버 오류");
+        }
+        res.send(result);
+    });
+});
+
 
 
 app.listen(PORT, ()=>{

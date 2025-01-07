@@ -1,13 +1,20 @@
 import { Link, useNavigate } from "react-router-dom"
 import Logout from "./Logout";
+import {useState} from "react";
+import DropDown from "./DropDown";
+import SearchBar from "./SearchBar";
 
 
-const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
+const NavBar = ({ isAuthenticated, setIsAuthenticated, onSearch }) => {
+    const dropDownOptions = ["제목", "내용", "작성자"]
+    const toggleMenu = "옵션"
     return (
         <nav className="flex justify-between items-center p-4 bg-indigo-400 text-white">
-        <Link to="/" className="text-lg font-bold hover:text-gray-300">
-          홈
-        </Link>
+            <Link to="/" className="text-lg font-bold hover:text-gray-300">
+                홈
+            </Link>
+            <DropDown toggleMenu={toggleMenu} options={dropDownOptions} />
+            <SearchBar options={dropDownOptions} onSearch={onSearch} />
         <div>
         {isAuthenticated ? (
           // Logout 컴포넌트 재사용
