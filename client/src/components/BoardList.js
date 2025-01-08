@@ -3,20 +3,29 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const BoardList = ({ posts, loadPosts, searchQuery, searchField }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [filteredPosts, setFilteredPosts] = useState(posts);
     const postsPerPage = 10;
     const formatDate = (dateStr) => new Date(dateStr).toLocaleString("ko-KR");
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const filteredPosts = posts.filter((post) => {
-        if (searchField === "title") {
-            return post.title.includes(searchQuery);
-        } else if (searchField === "content") {
-            return post.content.includes(searchQuery);
-        } else if (searchField === "writer") {
-            return post.writer.includes(searchQuery);
+    useEffect(() => {
+        console.log("location.state 확인:", location.state); // 디버깅 로그
+        const { searchQuery, searchField } = location.state || {}; // 상태 확인
+        if (searchQuery && searchField) {
+            const filtered = posts.filter((post) => {
+                if (searchField === "title") return post.title.includes(searchQuery);
+                if (searchField === "content") return post.content.includes(searchQuery);
+                if (searchField === "writer") return post.writer.includes(searchQuery);
+                return false;
+            });
+            setFilteredPosts(filtered);
+        } else {
+            setFilteredPosts(posts); // 검색 조건이 없으면 전체 게시글 표시
         }
-        return true;
-    });
+    }, [location.state, posts]);
+    
+    
 
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;

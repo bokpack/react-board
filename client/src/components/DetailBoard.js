@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {  fetchBoardDetail } from "../services/api";
 import Comment from "./Comment";
 
-const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
+const DetailBoard = ({ onDelete, isAuthenticated, user, onSearch }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post,setPost] = useState(null);
@@ -46,6 +46,19 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
     const handleHome = () => {
         navigate("/board", {state : {reload : true}});
     }
+
+    const handleSearch = (query, field) => {
+        if (!field) {
+            alert("검색 필드를 선택해주세요!");
+            return;
+        }
+        console.log("검색 실행 - query:", query, "field:", field); // 디버깅 로그
+        navigate("/board", {
+            state: { searchQuery: query, searchField: field },
+            replace: false, // `replace: false`로 설정하여 브라우저 히스토리 기록
+        });
+    };    
+    
 
     
 

@@ -189,7 +189,7 @@ app.delete("/api/delete/:id", (req,res) => {
 // GET 게시글 상세조회 및 조회수
 app.get("/api/detail/:id", (req, res) => {
     const { id } = req.params;
-
+    console.log("살세조회 요청 id : ", id)
     const incrementQuery = "UPDATE board SET view_count = view_count + 1 WHERE id = ?";
     const selectQuery = ` SELECT b.id, b.title, b.content,  b.date, b.view_count, u.name AS writer
                             FROM board b JOIN user u ON b.user_id = u.id WHERE b.id = ?`;

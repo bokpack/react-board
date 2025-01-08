@@ -14,6 +14,7 @@ import SignUp from './components/SignUp';
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sessionUser, setSessionUser] = useState(null);
   const navigate = useNavigate();
@@ -42,11 +43,16 @@ function App() {
     }
   }
 
-  const loadPosts = () => {
-    fetchBoardList()
-    .then((res) => setPosts(res.data))
-    .catch((err) => console.error("게시글 목록 가져오기 실패 : ", err));
+  const loadPosts = async () => {
+    try {
+      const response = await fetchBoardList();
+      setPosts(response.data);
+      setFilteredPosts(response.data); // 초기값으로 전체 게시글 표시
+    } catch (err) {
+      console.error("게시글 목록 가져오기 실패:", err);
+    }
   };
+
   const handleCreate = (data) => {
     createBoard(data)
       .then(() => {
@@ -81,20 +87,20 @@ function App() {
     }
   }
 
-  const handleSearch = async(query,field) => {
+  const handleSearch = async (query, field) => {
     try {
-      if(!field) {
-        alert("검색 필드를 선택해주세요!")
+      if (!field) {
+        alert("검색 필드를 선택해주세요!");
         return;
       }
       const response = await searchPosts(query, field);
-      setPosts(response.data);
+      setFilteredPosts(response.data);
       setSearchQuery(query);
       setSearchField(field);
     } catch (err) {
-      console.error("검색 실패 : ", err)
+      console.error("검색 실패:", err);
     }
-  }
+  };
 
   return (
     <div className="App mx-auto p-6 py-4 ">
@@ -104,7 +110,7 @@ function App() {
 
           <Route path="/board" element={
             <div>
-              <BoardList posts={posts} loadPosts={loadPosts} searchQuery={searchQuery} searchField={searchField} onDelete={isAuthenticated ? handleDelete : null}/>
+              <BoardList posts={filteredPosts} loadPosts={loadPosts} searchQuery={searchQuery} searchField={searchField} onDelete={isAuthenticated ? handleDelete : null}/>
               <div className='flex justify-end mt-4'>
                   <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
                     >글쓰기</button>
@@ -126,7 +132,7 @@ function App() {
           <Route
               path="/detail/:id"
               element={
-                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} user={sessionUser} />
+                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} user={sessionUser} onSearch={handleSearch} />
                   } />
         {/* 게시글 수정 */}
           <Route
