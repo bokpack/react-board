@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"; 
-import { addComment, fetchBoardDetail, fetchComments } from "../services/api";
+import {  fetchBoardDetail } from "../services/api";
 import Comment from "./Comment";
 
 const DetailBoard = ({ onDelete, isAuthenticated, user }) => {

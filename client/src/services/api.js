@@ -25,3 +25,6 @@ export const deleteComment = (commentId) => Axios.delete(`${API_URL}/comment/${c
 
 //게시글 검색
 export const searchPosts = (query, field) => Axios.get(`${API_URL}/search`, {params : {query, field}, withCredentials: true})
+
+// 회원가입
+export const signupUser = (data) => Axios.post(`${API_URL}/signup`, data, { withCredentials: true });

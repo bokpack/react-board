@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql')
+const mysql = require('mysql2')
 const app = express();
 const PORT = 8000;
 const bcrypt = require("bcrypt");
@@ -355,6 +355,65 @@ app.get("/api/search", (req, res) => {
         }
         res.send(result);
     });
+});
+
+//POST 회원가입
+app.post("/api/signup", async (req, res) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+        return res.status(400).send({ success: false, message: "모든 필드를 입력해주세요." });
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).send({ success: false, message: "이메일 형식이 올바르지 않습니다." });
+    }
+
+    // 비밀번호 형식 검증
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\W_]).{8,16}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send({
+            success: false,
+            message: "비밀번호는 8~16자의 영문, 숫자, 특수문자를 포함해야 합니다.",
+        });
+    }
+
+    try {
+        // 이메일 중복 확인
+        const emailCheckQuery = "SELECT * FROM user WHERE email = ?";
+        const [emailCheckResult] = await db.promise().query(emailCheckQuery, [email]);
+        if (emailCheckResult.length > 0) {
+            return res.status(400).send({ success: false, message: "이미 사용 중인 이메일입니다." });
+        }
+
+        // 이름 중복 확인
+        const nameCheckQuery = "SELECT * FROM user WHERE name = ?";
+        const [nameCheckResult] = await db.promise().query(nameCheckQuery, [name]);
+        if (nameCheckResult.length > 0) {
+            return res.status(400).send({ success: false, message: "이미 사용 중인 이름입니다." });
+        }
+
+        // 비밀번호 암호화
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 사용자 저장
+        const insertUserQuery = "INSERT INTO user (name, email, password) VALUES (?, ?, ?)";
+        const [result] = await db.promise().query(insertUserQuery, [name, email, hashedPassword]);
+
+        
+        req.session.user = {
+            id: result.insertId,
+            name,
+            email
+        }
+
+        res.send({ success: true, message: "회원가입 성공 및 자동 로그인 완료", user: req.session.user });
+    } catch (err) {
+        console.error("회원가입 실패:", err);
+        res.status(500).send({ success: false, message: "서버 오류로 회원가입에 실패했습니다." });
+    }
 });
 
 

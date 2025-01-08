@@ -56,7 +56,7 @@ function Login({setIsAuthenticated}) {
                     />
                 </div>
                 <div>
-                    <button className="bg-green-500 text-white w-80 h-8  p-1 rounded">로그인</button>
+                    <button className="bg-lime-400 text-white w-80 h-8  p-1 rounded">로그인</button>
                 </div>
             </div>
             </form>
