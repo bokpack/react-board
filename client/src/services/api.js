@@ -22,3 +22,6 @@ export const fetchComments = (postId) => Axios.get(`${API_URL}/comments/${postId
 export const addComment = (postId, data) => Axios.post(`${API_URL}/comment/${postId}`, data,{withCredentials : true})
 export const updateComment = (commentId,data) => Axios.put(`${API_URL}/comment/${commentId}`, data,{withCredentials : true})
 export const deleteComment = (commentId) => Axios.delete(`${API_URL}/comment/${commentId}`, { withCredentials: true });
+
+//게시글 검색
+export const searchPosts = (query, field) => Axios.get(`${API_URL}/search`, {params : {query, field}, withCredentials: true})

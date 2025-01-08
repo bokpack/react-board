@@ -14,6 +14,7 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
         const fetchDetail = async () => {
             try {
                 const response = await fetchBoardDetail(id);
+                console.log("게시글 상세 데이터 : ", response.date)
                 setPost(response.data);
 
             } catch (err) {
@@ -57,6 +58,7 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
     return (
         <div className="">
             <p className='text-4xl text-gray-600 p-2'>VIEW</p>
+            
             <div className="border rounded border-indigo-300">
                 
                 <p className="flex justify-between items-center border-b border-indigo-300 p-2 text-indigo-400">{post.title} <span className="border rounded-full p-1 bg-lime-400 text-white ">조회수: {post.view_count}</span></p>
@@ -65,7 +67,7 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
                     className="text-gray-500">{post.writer}</span></p>
                 <p className="border-b border-indigo-300 p-2 text-indigo-400">작성일: <span
                     className="text-gray-500">{formatDate(post.date)}</span></p>
-                <p className="p-2 text-gray-500"> {post.content}</p>
+                <p className="text-gray-500 p-2">{post.content}</p>
 
                 <div className="flex gap-3 p-4 justify-center">
                     <button onClick={handleHome} className="p-2 rounded-sm bg-lime-400 text-white ">목록</button>

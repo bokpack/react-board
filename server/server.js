@@ -191,7 +191,7 @@ app.get("/api/detail/:id", (req, res) => {
     const { id } = req.params;
 
     const incrementQuery = "UPDATE board SET view_count = view_count + 1 WHERE id = ?";
-    const selectQuery = ` SELECT b.id, b.title, b.date, b.view_count, u.name AS writer
+    const selectQuery = ` SELECT b.id, b.title, b.content,  b.date, b.view_count, u.name AS writer
                             FROM board b JOIN user u ON b.user_id = u.id WHERE b.id = ?`;
     db.query(incrementQuery, [id], (err) => {
         if(err) {
@@ -337,11 +337,16 @@ app.get("/api/search", (req, res) => {
     if (!query || !field) {
         return res.status(400).send({ success: false, message: "검색어와 필드를 입력해주세요" });
     }
+    const allowedFields = ["title", "content", "writer"]
+    if(!allowedFields.includes(field)) {
+        return res.status(400).send({success : false, message : "유효하지 않은 검색필드입니다."})
+    }
+    const dbField = field === "writer" ? "u.name" : `b.${field}`
 
     let sqlQuery = `SELECT b.id, b.title, b.content, b.date, b.view_count, u.name AS writer
                     FROM board b
                     JOIN user u ON b.user_id = u.id
-                    WHERE ${field} LIKE ?`;
+                    WHERE ${dbField} LIKE ?`;
 
     db.query(sqlQuery, [`%${query}%`], (err, result) => {
         if (err) {

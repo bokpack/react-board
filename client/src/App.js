@@ -4,7 +4,7 @@ import { useState, useEffect,  } from 'react';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession } from './services/api';
+import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession, searchPosts } from './services/api';
 import { useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 
@@ -17,6 +17,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sessionUser, setSessionUser] = useState(null);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchField, setSearchField] = useState("");
   
   useEffect(() => {
     verifySession();
@@ -79,15 +81,30 @@ function App() {
     }
   }
 
+  const handleSearch = async(query,field) => {
+    try {
+      if(!field) {
+        alert("검색 필드를 선택해주세요!")
+        return;
+      }
+      const response = await searchPosts(query, field);
+      setPosts(response.data);
+      setSearchQuery(query);
+      setSearchField(field);
+    } catch (err) {
+      console.error("검색 실패 : ", err)
+    }
+  }
+
   return (
     <div className="App mx-auto p-6 py-4 ">
-      <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} onSearch={handleSearch} />
        <Routes>
           <Route path="/" element={<Navigate to="/board" replace />}/>
 
           <Route path="/board" element={
             <div>
-              <BoardList posts={posts} loadPosts={loadPosts} onDelete={isAuthenticated ? handleDelete : null}/>
+              <BoardList posts={posts} loadPosts={loadPosts} searchQuery={searchQuery} searchField={searchField} onDelete={isAuthenticated ? handleDelete : null}/>
               <div className='flex justify-end mt-4'>
                   <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
                     >글쓰기</button>
