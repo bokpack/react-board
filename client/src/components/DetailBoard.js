@@ -3,11 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import {  fetchBoardDetail } from "../services/api";
 import Comment from "./Comment";
 
-const DetailBoard = ({ onDelete, isAuthenticated, user, onSearch }) => {
+const DetailBoard = ({ onDelete, isAuthenticated, user, onSearch, posts }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post,setPost] = useState(null);
     const fetchOnce = useRef(false); // 조회수가 2씩 증가하는 걸 방지하기 위함함
+
+    useEffect(() => {
+        console.log("posts 확인:", posts); // posts 배열 상태 확인
+    }, [posts]);
     
 
     useEffect(() => {

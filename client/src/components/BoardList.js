@@ -10,9 +10,11 @@ const BoardList = ({ posts, loadPosts, searchQuery, searchField }) => {
     const location = useLocation();
 
     useEffect(() => {
-        console.log("location.state 확인:", location.state); // 디버깅 로그
-        const { searchQuery, searchField } = location.state || {}; // 상태 확인
-        if (searchQuery && searchField) {
+        const { searchQuery, searchField, reload } = location.state || {}; // 상태 확인
+        if(reload) {
+            loadPosts()
+            navigate("/board", {state : {}})
+        } else if (searchQuery && searchField) {
             const filtered = posts.filter((post) => {
                 if (searchField === "title") return post.title.includes(searchQuery);
                 if (searchField === "content") return post.content.includes(searchQuery);
@@ -24,8 +26,7 @@ const BoardList = ({ posts, loadPosts, searchQuery, searchField }) => {
             setFilteredPosts(posts); // 검색 조건이 없으면 전체 게시글 표시
         }
     }, [location.state, posts]);
-    
-    
+
 
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -62,7 +63,7 @@ const BoardList = ({ posts, loadPosts, searchQuery, searchField }) => {
                             <td className="border-b p-2">{post.id}</td>
                             <td className="border-b p-2">{post.title}</td>
                             <td className="border-b p-2">{post.writer}</td>
-                            <td className="border-b p-2">{post.view_count}</td>
+                            <td className="border-b p-2">{post.view_count || 0}</td>
                             <td className="border-b p-2">{formatDate(post.date)}</td>
                         </tr>
                     ))}

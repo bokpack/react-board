@@ -151,6 +151,7 @@ app.get("/api/get", (req,res) => {
             console.error("MySQL 쿼리 오류 : ", err);
             return res.status(500).send("서버오류")
         }
+        console.log("쿼리 결과: ", result);
         res.send(result);
     })
 })
