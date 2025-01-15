@@ -4,25 +4,25 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchPosts, filterPosts } from '../redux/slices/postsSlice';
 
 const BoardList = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); // Redux 액션(fetchPosts, filterPosts)을 실행
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {  filteredPosts, status } = useSelector((state) => state.posts);
+  const {  filteredPosts, status } = useSelector((state) => state.posts); // Redux의 상태를 가져옴, filteredPosts(필터링된 게시글 리스트) & status (로딩 상태)
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
 
   useEffect(() => {
     // 게시글 데이터를 로드
     if (status === 'idle') {
-      dispatch(fetchPosts());
+      dispatch(fetchPosts()); // Redux 액션을 통해 게시글 데이터를 로드
     }
   }, [dispatch, status]);
 
   useEffect(() => {
     const { searchQuery, searchField, reload } = location.state || {};
     if (reload) {
-      dispatch(fetchPosts());
+      dispatch(fetchPosts()); // 게시글 데이터 다시 로드
       navigate('/board', { state: {} });
     } else if (searchQuery && searchField) {
       dispatch(filterPosts({ searchQuery, searchField }));
@@ -128,7 +128,7 @@ export default BoardList;
 //     useEffect(() => {
 //         const { searchQuery, searchField, reload } = location.state || {}; // 상태 확인
 //         if(reload) {
-//             loadPosts()
+//             loadPosts() // props로 전달된 게시글 로그 함수 호출
 //             navigate("/board", {state : {}})
 //         } else if (searchQuery && searchField) {
 //             const filtered = posts.filter((post) => {
