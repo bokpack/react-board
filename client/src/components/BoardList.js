@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchPosts, filterPosts } from '../redux/slices/postsSlice';
+import { fetchPosts, filterPosts, setPage } from '../redux/slices/postsSlice';
 
 const BoardList = () => {
   const dispatch = useDispatch(); // Redux 액션(fetchPosts, filterPosts)을 실행
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {  filteredPosts, status } = useSelector((state) => state.posts); // Redux의 상태를 가져옴, filteredPosts(필터링된 게시글 리스트) & status (로딩 상태)
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
+  // const {  filteredPosts, status } = useSelector((state) => state.posts); // Redux의 상태를 가져옴, filteredPosts(필터링된 게시글 리스트) & status (로딩 상태)
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const postsPerPage = 10;
+
+  // Redux 적용한 pagenation을 위해서
+  const { filteredPosts, currentPage, postsPerPage, status } = useSelector((state) => state.posts);
 
   useEffect(() => {
     // 게시글 데이터를 로드
@@ -35,7 +38,7 @@ const BoardList = () => {
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // const paginate = (pageNumber) => setCurrentPage(pageNumber);  Redux의 dispatch 사용할 거라 필요가 없어짐
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   const handleClick = (id) => {
@@ -78,7 +81,7 @@ const BoardList = () => {
       </table>
       <div className="flex justify-center space-x-2 p-4">
         <button
-          onClick={() => paginate(currentPage - 1)}
+          onClick={() => dispatch(setPage(currentPage - 1))}
           disabled={currentPage === 1}
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
         >
@@ -87,7 +90,7 @@ const BoardList = () => {
         {[...Array(totalPages)].map((_, index) => (
           <button
             key={index}
-            onClick={() => paginate(index + 1)}
+            onClick={() => dispatch(setPage(index + 1))}
             className={`px-4 py-2 rounded ${
               currentPage === index + 1 ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-700'
             }`}
@@ -96,7 +99,7 @@ const BoardList = () => {
           </button>
         ))}
         <button
-          onClick={() => paginate(currentPage + 1)}
+          onClick={() => dispatch(setPage(currentPage + 1))}
           disabled={currentPage === totalPages}
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
         >

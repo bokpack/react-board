@@ -19,6 +19,8 @@ const postsSlice = createSlice({
         posts : [], // 게시글 리스트
         filteredPosts : [], // 필터링된 리스트
         postDetail : null ,  // 게시글 상세 정보
+        currentPage : 1, // 현재페이지
+        postsPerPage : 10, // 한 페이지당 게시글 수 
         status : 'idle', // 로딩상태
         error: null // 에러정보
     },
@@ -35,8 +37,11 @@ const postsSlice = createSlice({
                 if(searchField === 'writer') return post.writer.includes(searchQuery);
                 return false
             });
-        }, 
-        clearPostDetail: (state) => {
+        },
+        setPage : (state , action) => {
+            state.currentPage = action.payload; // 현재페이지 설쩡
+        },
+        clearPostDetail: (state) => { // postDetail 상태를 초기화
             state.postDetail = null;
         }
     },
@@ -69,5 +74,5 @@ const postsSlice = createSlice({
         })
     }
 })
-export const {filterPosts, clearPostDetail} = postsSlice.actions;
+export const {filterPosts, clearPostDetail, setPage} = postsSlice.actions;
 export default postsSlice.reducer;
