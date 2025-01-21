@@ -1,91 +1,32 @@
 import './App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect,  } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { checkSession } from './redux/slices/userSlice';
+import { fetchPosts } from './redux/slices/postsSlice';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession, searchPosts } from './services/api';
-import { useNavigate } from 'react-router-dom';
+import { searchPosts } from './services/api';
 import Login from './components/Login';
-
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
 import SignUp from './components/SignUp';
 
 function App() {
-  const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [sessionUser, setSessionUser] = useState(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchField, setSearchField] = useState("");
-  
+
+  // Redux 상태 가져오기
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { posts, filteredPosts, status } = useSelector((state) => state.posts);
+
   useEffect(() => {
-    verifySession();
-    loadPosts();
-  }, []);
-
-  const verifySession = async() => {
-    try {
-      const response = await checkSession();
-      console.log("세션 확인 응담 : ", response.data)
-      setIsAuthenticated(response.data.success);
-      if(response.data.success) {
-        setSessionUser(response.data.user); // 사용자 정보 저장
-      } else {
-        setSessionUser(null);
-      }
-    } catch(err) {
-      console.error("세선 확인 실패 : ", err)
-      setIsAuthenticated(false)
-      setSessionUser(null);
-    }
-  }
-
-  const loadPosts = async () => {
-    try {
-      const response = await fetchBoardList();
-      setPosts(response.data);
-      setFilteredPosts(response.data); // 초기값으로 전체 게시글 표시
-    } catch (err) {
-      console.error("게시글 목록 가져오기 실패:", err);
-    }
-  };
-
-  const handleCreate = (data) => {
-    createBoard(data)
-      .then(() => {
-        loadPosts();
-        navigate("/")
-      })
-       .catch((err) => console.error("게시글 등록 실패:", err));
-  };
-
-  const handleDelete = (id) => {
-    deleteBoard(id)
-      .then(() => loadPosts())
-      .catch((err) => console.error("게시글 삭제 실패:", err));
-  };
-
-  const handleUpdate = (data) => {
-    const { id, title, content } = data;
-    updateBoard(id, {title, content})
-      .then(() => {
-        loadPosts();
-        navigate("/");
-      })
-      .catch((err) => console.error("게시글 수정 실패 : ", err))
-  }
-
-  const handleWriteClick = () => {
-    if(isAuthenticated) {
-      navigate("/insert")
-    } else {
-      alert("글쓰기를 하려면 로그인이 필요합니다!")
-      navigate("/login")
-    }
-  }
+    // 세션 확인 및 게시글 로드
+    dispatch(checkSession());
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
   const handleSearch = async (query, field) => {
     try {
@@ -94,62 +35,239 @@ function App() {
         return;
       }
       const response = await searchPosts(query, field);
-      setFilteredPosts(response.data);
-      setSearchQuery(query);
-      setSearchField(field);
+      console.log("검색 결과:", response.data);
     } catch (err) {
       console.error("검색 실패:", err);
     }
   };
 
-  return (
-    <div className="App mx-auto p-6 py-4 ">
-      <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} onSearch={handleSearch} />
-       <Routes>
-          <Route path="/" element={<Navigate to="/board" replace />}/>
+  const handleWriteClick = () => {
+    if (isAuthenticated) {
+      navigate("/insert");
+    } else {
+      alert("글쓰기를 하려면 로그인이 필요합니다!");
+      navigate("/login");
+    }
+  };
 
-          <Route path="/board" element={
+  return (
+    <div className="App mx-auto p-6 py-4">
+      <NavBar isAuthenticated={isAuthenticated} onSearch={handleSearch} />
+
+      <Routes>
+        <Route path="/" element={<Navigate to="/board" replace />} />
+        <Route
+          path="/board"
+          element={
             <div>
-              <BoardList posts={filteredPosts} loadPosts={loadPosts} searchQuery={searchQuery} searchField={searchField} onDelete={isAuthenticated ? handleDelete : null}/>
-              <div className='flex justify-end mt-4'>
-                  <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
-                    >글쓰기</button>
+              <BoardList />
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={handleWriteClick}
+                  className="bg-lime-400 text-white p-2 rounded mb-4"
+                >
+                  글쓰기
+                </button>
               </div>
             </div>
-          } />
-
-        {/* 로그인*/}
-          <Route path='/login' element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
-        {/* 회원가입 */}
-          <Route path='/signup' element={<SignUp />}/>
-        {/* 글쓰기 */}
-          <Route 
-              path="/insert"
-              element={
-                <BoardWrite onSubmit={handleCreate} isAuthenticated={isAuthenticated} />
-                } />
-        {/*게시글 상세보기*/}
-          <Route
-              path="/detail/:id"
-              element={
-                <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} user={sessionUser} onSearch={handleSearch} />
-                  } />
-        {/* 게시글 수정 */}
-          <Route
-              path="/update/:id"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <BoardWrite posts={posts} onSubmit={handleUpdate} isAuthenticated={isAuthenticated} />
-                </PrivateRoute>
-                  } />
-       </Routes>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route
+          path="/insert"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <BoardWrite />
+            </PrivateRoute>
+          }
+        />
+        {/* 글쓰기 상세보기 */}
+        <Route
+          path="/detail/:id"
+          element={
+            <DetailBoard
+              user={user}
+              isAuthenticated={isAuthenticated}
+              posts={posts}
+            />
+          }
+        />
+        {/* 글쓰기 수정 */}
+        <Route
+          path="/update/:id"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <BoardWrite />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
     </div>
   );
 }
 
 export default App;
+
+
+
+
+
+
+// Resux 적용 전
+// import './App.css';
+// import { Routes, Route, Navigate } from 'react-router-dom';
+// import { useState, useEffect,  } from 'react';
+// import BoardList from './components/BoardList';
+// import BoardWrite from './components/BoardWrite';
+// import DetailBoard from './components/DetailBoard';
+// import { fetchBoardList, createBoard, deleteBoard, updateBoard, checkSession, searchPosts } from './services/api';
+// import { useNavigate } from 'react-router-dom';
+// import Login from './components/Login';
+
+// import PrivateRoute from './components/PrivateRoute';
+// import NavBar from './components/NavBar';
+// import SignUp from './components/SignUp';
+
+// function App() {
+//   const [posts, setPosts] = useState([]);
+//   const [filteredPosts, setFilteredPosts] = useState([]);
+//   const [isAuthenticated, setIsAuthenticated] = useState(false);
+//   const [sessionUser, setSessionUser] = useState(null);
+//   const navigate = useNavigate();
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [searchField, setSearchField] = useState("");
+  
+//   useEffect(() => {
+//     verifySession();
+//     loadPosts();
+//   }, []);
+
+//   const verifySession = async() => {
+//     try {
+//       const response = await checkSession();
+//       console.log("세션 확인 응담 : ", response.data)
+//       setIsAuthenticated(response.data.success);
+//       if(response.data.success) {
+//         setSessionUser(response.data.user); // 사용자 정보 저장
+//       } else {
+//         setSessionUser(null);
+//       }
+//     } catch(err) {
+//       console.error("세선 확인 실패 : ", err)
+//       setIsAuthenticated(false)
+//       setSessionUser(null);
+//     }
+//   }
+
+//   const loadPosts = async () => {
+//     try {
+//       const response = await fetchBoardList();
+//       setPosts(response.data);
+//       setFilteredPosts(response.data); // 초기값으로 전체 게시글 표시
+//     } catch (err) {
+//       console.error("게시글 목록 가져오기 실패:", err);
+//     }
+//   };
+
+//   const handleCreate = (data) => {
+//     createBoard(data)
+//       .then(() => {
+//         loadPosts();
+//         navigate("/")
+//       })
+//        .catch((err) => console.error("게시글 등록 실패:", err));
+//   };
+
+//   const handleDelete = (id) => {
+//     deleteBoard(id)
+//       .then(() => loadPosts())
+//       .catch((err) => console.error("게시글 삭제 실패:", err));
+//   };
+
+//   const handleUpdate = (data) => {
+//     const { id, title, content } = data;
+//     updateBoard(id, {title, content})
+//       .then(() => {
+//         loadPosts();
+//         navigate("/");
+//       })
+//       .catch((err) => console.error("게시글 수정 실패 : ", err))
+//   }
+
+//   const handleWriteClick = () => {
+//     if(isAuthenticated) {
+//       navigate("/insert")
+//     } else {
+//       alert("글쓰기를 하려면 로그인이 필요합니다!")
+//       navigate("/login")
+//     }
+//   }
+
+//   const handleSearch = async (query, field) => {
+//     try {
+//       if (!field) {
+//         alert("검색 필드를 선택해주세요!");
+//         return;
+//       }
+//       const response = await searchPosts(query, field);
+//       setFilteredPosts(response.data);
+//       setSearchQuery(query);
+//       setSearchField(field);
+//     } catch (err) {
+//       console.error("검색 실패:", err);
+//     }
+//   };
+
+//   return (
+//     <div className="App mx-auto p-6 py-4 ">
+//       <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} onSearch={handleSearch} />
+//        <Routes>
+//           <Route path="/" element={<Navigate to="/board" replace />}/>
+
+//           <Route path="/board" element={
+//             <div>
+//               <BoardList posts={filteredPosts} loadPosts={loadPosts} searchQuery={searchQuery} searchField={searchField} onDelete={isAuthenticated ? handleDelete : null}/>
+//               <div className='flex justify-end mt-4'>
+//                   <button onClick={handleWriteClick} className='bg-lime-400 text-white p-2  rounded mb-4 '
+//                     >글쓰기</button>
+//               </div>
+//             </div>
+//           } />
+
+//         {/* 로그인*/}
+//           <Route path='/login' element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
+//         {/* 회원가입 */}
+//           <Route path='/signup' element={<SignUp />}/>
+//         {/* 글쓰기 */}
+//           <Route 
+//               path="/insert"
+//               element={
+//                 <BoardWrite onSubmit={handleCreate} isAuthenticated={isAuthenticated} />
+//                 } />
+//         {/*게시글 상세보기*/}
+//           <Route
+//               path="/detail/:id"
+//               element={
+//                 <DetailBoard posts={posts} onDelete={isAuthenticated ? handleDelete : null} isAuthenticated={isAuthenticated} user={sessionUser} onSearch={handleSearch} />
+//                   } />
+//         {/* 게시글 수정 */}
+//           <Route
+//               path="/update/:id"
+//               element={
+//                 <PrivateRoute isAuthenticated={isAuthenticated}>
+//                   <BoardWrite posts={posts} onSubmit={handleUpdate} isAuthenticated={isAuthenticated} />
+//                 </PrivateRoute>
+//                   } />
+//        </Routes>
+//     </div>
+//   );
+// }
+
+// export default App;
   
 
+// 컴포넌트 분리 전 코드
 // function App() {
 //   const [boardContent, setBoardContent] = useState({
 //     title: '',
