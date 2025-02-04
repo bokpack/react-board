@@ -26,71 +26,73 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated, onSearch }) => {
     return (
         <nav className="relative flex flex-wrap justify-between items-center p-4 bg-indigo-400 text-white">
 
-            <Link to="/" className="text-lg font-bold hover:text-gray-300">
-                홈
-            </Link>
+    <Link to="/" className="text-lg font-bold hover:text-gray-300">
+        홈
+    </Link>
 
-            {/* 검색바 & 드롭다운*/}
-            <div className="flex items-center gap-4 sm:gap-6 order-3 sm:order-2 w-full sm:w-auto mt-4 sm:mt-0">
-                <DropDown toggleMenu="선택" options={dropDownOptions} onOptionSelect={handleOptionSelect} />
-                <SearchBar onSearch={(query) => onSearch(query, selectedField)} />
-            </div>
+    {/* 검색바 & 드롭다운 */}
+    <div className="flex items-center gap-4 md:gap-6 order-3 md:order-2 w-full md:w-auto justify-center md:justify-center mt-4 md:mt-0">
+        <DropDown toggleMenu="선택" options={dropDownOptions} onOptionSelect={handleOptionSelect} />
+        <SearchBar onSearch={(query) => onSearch(query, selectedField)} />
+    </div>
 
-            {/* 로그인 회원가입 */}
-            <div className="hidden sm:flex items-center gap-4 order-2 sm:order-3">
-                {isAuthenticated ? (
-                    <Logout setIsAuthenticated={setIsAuthenticated} />
-                ) : (
-                    <>
-                        <Link to="/login" className="px-4 py-2 border-2 hover:bg-white hover:text-black rounded">
-                            로그인
-                        </Link>
-                        <Link to="/signup" className="px-4 py-2 border-2 hover:bg-white hover:text-black rounded">
-                            회원가입
-                        </Link>
-                    </>
-                )}
-            </div>
+    {/* 로그인 회원가입 (데스크탑 전용) */}
+    <div className="hidden md:flex items-center gap-4 order-2 md:order-3">
+        {isAuthenticated ? (
+            <Logout setIsAuthenticated={setIsAuthenticated} />
+        ) : (
+            <>
+                <Link to="/login" className="px-4 py-2 border-2 hover:bg-white hover:text-black rounded">
+                    로그인
+                </Link>
+                <Link to="/signup" className="px-4 py-2 border-2 hover:bg-white hover:text-black rounded">
+                    회원가입
+                </Link>
+            </>
+        )}
+    </div>
 
-            {/* 모바일 - 햄버거 버튼 */}
-            <div className="sm:hidden order-1 sm:order-3">
-                <button onClick={toggleMenu} className="text-white">
-                    {isMenuOpen ? "☰" : "☰"}
+    {/* 모바일 - 햄버거 버튼 (중간 크기에서도 활성화) */}
+    <div className="md:hidden order-1 md:order-3">
+        <button onClick={toggleMenu} className="text-white">
+            {isMenuOpen ? "☰" : "☰"}
+        </button>
+    </div>
+
+    {/* 모바일 - 메뉴 (중간 크기에서도 활성화) */}
+    {isMenuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={toggleMenu}>
+            <div className="absolute top-16 right-4 bg-white text-black p-4 rounded shadow-lg w-40">
+                <button
+                    onClick={toggleMenu}
+                    className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+                >
+                    &#x2715;
                 </button>
-            </div>
-
-            {/* 모바일 - 메뉴 */}
-            {isMenuOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={toggleMenu}>
-                    <div className="absolute top-16 right-4 bg-white text-black p-4 rounded shadow-lg w-40">
-                        <button
-                            onClick={toggleMenu}
-                            className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-                        >
-                            &#x2715;
-                        </button>
-                        <div className="flex flex-col items-center mt-4">
-                            {isAuthenticated ? (
-                                <Logout setIsAuthenticated={setIsAuthenticated} />
-                            ) : (
-                                <>
-                                    <Link to="/login" className="block mb-2 px-4 py-2 border-2 hover:bg-gray-200 rounded w-full text-center">
-                                        로그인
-                                    </Link>
-                                    <Link to="/signup" className="block mb-2 px-4 py-2 border-2 hover:bg-gray-200 rounded w-full text-center">
-                                        회원가입
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </div>
+                <div className="flex flex-col items-center mt-4">
+                    {isAuthenticated ? (
+                        <Logout setIsAuthenticated={setIsAuthenticated} />
+                    ) : (
+                        <>
+                            <Link to="/login" className="block mb-2 px-4 py-2 border-2 hover:bg-gray-200 rounded w-full text-center">
+                                로그인
+                            </Link>
+                            <Link to="/signup" className="block mb-2 px-4 py-2 border-2 hover:bg-gray-200 rounded w-full text-center">
+                                회원가입
+                            </Link>
+                        </>
+                    )}
                 </div>
-            )}
-        </nav>
+            </div>
+        </div>
+    )}
+</nav>
     );
 };
 
 export default NavBar;
+
+
 
 
 
