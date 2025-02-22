@@ -9,10 +9,7 @@ const MySQLStore = require('express-mysql-session')(session);
 
 // 파일 서빙해주는 코드 추가
 const path = require('path');
-app.use(express.static(path.join(__dirname, '../client/build')));
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-});
+
 
 
 
@@ -434,4 +431,9 @@ app.post("/api/signup", async (req, res) => {
 
 app.listen(PORT, ()=>{
     console.log(`포트 ${PORT}번으로 서버를 열었습니다.`);
+});
+
+app.use(express.static(path.join(__dirname, '../client/build')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
