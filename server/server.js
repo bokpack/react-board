@@ -16,9 +16,9 @@ app.get('*', (req, res) => {
 
 
 const db = mysql.createConnection({
-    host: "localhost",
+    host: "board-rds.c7gs68g0qe3h.ap-northeast-2.rds.amazonaws.com", // rds의 엔드포인트로 수정
     port:"3306",
-    user: "root",
+    user: "mgwoo",
     password: "ann123123",
     database:"easyboard"
 })
@@ -26,9 +26,9 @@ const db = mysql.createConnection({
 db.connect(err => { if (err) console.log("MySQL 연결 실패 : ", err); console.log("MySQL가 연결되었습니다!"); });
 
 const sessionStore = new MySQLStore({
-    host: "localhost",
+    host: "board-rds.c7gs68g0qe3h.ap-northeast-2.rds.amazonaws.com", // rds의 엔드포인트로 수정
     port: 3306,
-    user: "root",
+    user: "mgwoo",
     password: "ann123123",
     database: "easyboard"
 });
@@ -44,7 +44,11 @@ app.use(session({
 }))
 
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: [
+        "http://localhost:3000",
+        "http://13.124.147.112", //ec2 퍼블릭 ip 추가
+        "https://13.124.147.112"
+    ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true
 }));
