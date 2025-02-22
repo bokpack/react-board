@@ -9,10 +9,11 @@ const MySQLStore = require('express-mysql-session')(session);
 
 // 파일 서빙해주는 코드 추가
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
+
 
 
 const db = mysql.createConnection({
