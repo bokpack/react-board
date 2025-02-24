@@ -8,7 +8,7 @@ import { fetchPosts } from './redux/slices/postsSlice';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { searchPosts } from './services/api';
+import { searchPosts, createBoard } from './services/api';
 import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
@@ -50,6 +50,28 @@ function App() {
     }
   };
 
+  const handlePostSubmit = async (post) => {
+    try {
+        console.log("새 글 추가됨:", post);
+
+        // ✅ 새 게시글을 API에 저장
+        const response = await createBoard(post);
+        console.log("API 응답:", response.data); // 응답 데이터 확인
+
+        if (response.data.success) {
+            console.log("게시글이 성공적으로 저장되었습니다.");
+            dispatch(fetchPosts()); // ✅ 새 글 추가 후 게시글 목록 다시 불러오기
+            navigate("/board");
+        } else {
+            alert(`게시글 저장 실패: ${response.data.message || "알 수 없는 오류"}`);
+        }
+    } catch (error) {
+        console.error("게시글 저장 중 오류 발생:", error);
+        alert(`게시글 저장 중 오류: ${error.response?.data?.message || error.message}`);
+    }
+};
+
+
   return (
     <div className="App mx-auto p-6 py-4">
       <NavBar isAuthenticated={isAuthenticated} onSearch={handleSearch} />
@@ -78,7 +100,7 @@ function App() {
           path="/insert"
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
-              <BoardWrite />
+              <BoardWrite posts={posts} onSubmit={handlePostSubmit} isAuthenticated={isAuthenticated} />
             </PrivateRoute>
           }
         />

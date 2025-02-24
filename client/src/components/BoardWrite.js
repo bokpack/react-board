@@ -7,7 +7,7 @@ const BoardWrite = ({ posts,onSubmit, isAuthenticated  }) => {
     const [formData, setFormData] = useState({title : "", content : ""});
 
     useEffect(() => {
-        if(!isAuthenticated) {
+        if(isAuthenticated === false) {
             alert("글쓰기를 하려면 로그인이 필요합니다")
             navigate("/login")
         }
@@ -27,16 +27,17 @@ const BoardWrite = ({ posts,onSubmit, isAuthenticated  }) => {
     }
 
     const handleSubmit = () => {
-
         if (formData.title && formData.content) {
-            const updatePost = { ...formData, id: parseInt(id, 10) };
-            onSubmit(updatePost); 
-            navigate("/");
+            const newPost = id
+                ? { ...formData, id: parseInt(id, 10) } // 수정하는 경우 ID 유지
+                : { ...formData }; // 새 글 작성 시 ID 없이 전송
+    
+            onSubmit(newPost); 
+            navigate("/board");
         } else {
             alert("제목과 내용을 입력해주세요 ~");
         }
     };
-    
     
 
     return (

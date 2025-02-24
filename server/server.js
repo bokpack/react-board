@@ -136,22 +136,30 @@ app.get("/api/session", (req,res) => {
 // INSERT 게시글 등록
 app.post("/api/insert", (req, res) => {
     const { title, content } = req.body;
-    const userId = req.session.user?.id;
+    const userId = req.session.user?.id; // 세션에서 유저 ID 가져오기
 
-    if(!userId) {
-        return res.status(401).send({success : false , message : "로그인 필요"})
+    if (!userId) {
+        return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
     }
 
-    const sqlQuery = "INSERT INTO board (title, content, date, user_id) VALUES (?, ?, NOW(), ?)"; 
+    const sqlQuery = "INSERT INTO board (title, content, date, user_id) VALUES (?, ?, NOW(), ?)";
     db.query(sqlQuery, [title, content, userId], (err, result) => {
         if (err) {
-            console.error("MySQL 쿼리 오류: ", err); // 에러 로그 출력
-            return res.status(500).send("서버 오류");
+            console.error("MySQL 쿼리 오류: ", err);
+            return res.status(500).json({ success: false, message: "서버 오류 발생" });
         }
+
         console.log("데이터 삽입 성공:", result);
-        res.send("succ");
+        
+        // ✅ 응답을 JSON 형식으로 변경 (success: true 추가)
+        res.json({
+            success: true,
+            message: "게시글이 성공적으로 저장되었습니다.",
+            insertId: result.insertId, // 새로 삽입된 게시글의 ID 반환
+        });
     });
 });
+
 
 
 // GET 게시글 전체 조회
