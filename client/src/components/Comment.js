@@ -34,17 +34,27 @@ const Comment = ({ postId, isAuthenticated, user }) => {
 
   useEffect(() => {
     const loadComments = async () => {
-      try {
-        const response = await fetchComments(postId);
-        console.log("fetched comments : ", response.data)
-        setComments(response.data.data || []);
-      } catch (err) {
-        console.error("댓글 불러오기 실패:", err);
-        setComments([]);
-      }
+        try {
+            console.log("댓글 불러오기 요청: Post ID =", postId); //  API 호출 로그 추가
+
+            const response = await fetchComments(postId);
+            console.log("댓글 API 응답:", response.data); //  응답 데이터 확인
+
+            if (response.data.success) {
+                setComments(response.data.data || []);
+            } else {
+                console.error("댓글 불러오기 실패 (서버 응답 오류):", response.data);
+                setComments([]);
+            }
+        } catch (err) {
+            console.error("댓글 불러오기 실패 (네트워크 또는 서버 오류):", err);
+            setComments([]);
+        }
     };
+
     loadComments();
-  }, [postId]);
+}, [postId]);
+
 
   const handleAddComment = async () => {
     if (!newComment.trim()) {
@@ -123,65 +133,72 @@ const Comment = ({ postId, isAuthenticated, user }) => {
     <div className="mt-6">
       <p className="text-2xl text-gray-600 p-2">댓글</p>
       <div className="space-y-4">
-        {comments.map((comment, index) => (
-          <div key={comment.id || `comment-${index}`} className="border rounded p-2">
-            {console.log("댓글 id : ", comment.id)}
-            <p className="text-lg">{comment.writer}</p>
-            {editingCommentId === comment.id ? (
-              <div className="mt-2">
-                <textarea
-                  className="w-full p-2 border rounded"
-                  value={editingContent}
-                  onChange={(e) => setEditingContent(e.target.value)}
-                />
-                <button
-                  onClick={() => handleUpdateComment(comment.id)}
-                  className="mt-2 p-2 bg-indigo-400 text-white rounded"
-                >
-                  등록
-                </button>
-                <button
-                  onClick={() => setEditingCommentId(null)}
-                  className="mt-2 ml-2 p-2 bg-gray-400 text-white rounded"
-                >
-                  취소
-                </button>
-              </div>
-            ) : (
-              <>
-                <p>{comment.content}</p>
-                <p className="text-gray-400 text-sm">{console.log("Date to format : ", comment.date)}{formatDate(comment.date)}</p>
-                {isAuthenticated && user?.name === comment.writer && (
+        {/*  댓글이 존재할 경우 표시, 없으면 "댓글이 없습니다." 출력 */}
+        {comments && comments.length > 0 ? (
+          comments.map((comment, index) => (
+            <div key={comment.id || `comment-${index}`} className="border rounded p-2">
+              {console.log("댓글 id :", comment.id)}
+              <p className="text-lg">{comment.writer}</p>
+              {editingCommentId === comment.id ? (
+                <div className="mt-2">
+                  <textarea
+                    className="w-full p-2 border rounded"
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                  />
+                  <button
+                    onClick={() => handleUpdateComment(comment.id)}
+                    className="mt-2 p-2 bg-indigo-400 text-white rounded"
+                  >
+                    등록
+                  </button>
+                  <button
+                    onClick={() => setEditingCommentId(null)}
+                    className="mt-2 ml-2 p-2 bg-gray-400 text-white rounded"
+                  >
+                    취소
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p>{comment.content}</p>
+                  <p className="text-gray-400 text-sm">
+                    {console.log("Date to format:", comment.date)}
+                    {formatDate(comment.date)}
+                  </p>
+                  {isAuthenticated && user?.name === comment.writer && (
                     <div className="mt-2 flex gap-2">
-                        <button
-                            onClick={() => {
-                                setEditingCommentId(comment.id);
-                                setEditingContent(comment.content);
-                            }}
-                            className="text-gray-500"
-                        >
-                            수정
-                        </button>
-                        <button
-                            onClick={() => handleDeleteComment(comment.id)}
-                            className="text-gray-500"
-                        >
-                            삭제
-                        </button>
+                      <button
+                        onClick={() => {
+                          setEditingCommentId(comment.id);
+                          setEditingContent(comment.content);
+                        }}
+                        className="text-gray-500"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="text-gray-500"
+                      >
+                        삭제
+                      </button>
                     </div>
-                )}
-              </>
-            )}
-          </div>
-        ))}
+                  )}
+                </>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">댓글이 없습니다.</p>
+        )}
       </div>
 
+      {/*  댓글 입력창 */}
       <div className="mt-4 flex items-center gap-2">
         <textarea
           className="flex-1 p-2 border rounded"
-          placeholder={
-            isAuthenticated ? "댓글을 남겨보세요" : "로그인 후 댓글을 작성할 수 있습니다!"
-          }
+          placeholder={isAuthenticated ? "댓글을 남겨보세요" : "로그인 후 댓글을 작성할 수 있습니다!"}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           disabled={!isAuthenticated}

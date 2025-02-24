@@ -234,6 +234,8 @@ app.get("/api/detail/:id", (req, res) => {
 // GET 댓글 조회회
 app.get("/api/comments/:postId", (req,res) => {
     const {postId} = req.params;
+    console.log("댓글 조회 요청: Post ID =", postId); 
+
     const sqlQuery = `SELECT c.id ,c.content ,c.date, u.name AS writer
                       FROM comments c
                       JOIN user u ON c.user_id = u.id
@@ -244,6 +246,7 @@ app.get("/api/comments/:postId", (req,res) => {
             console.error("댓글 조회 실패 : ", err);
             return res.status(500).send("댓글 조회 실패")
         }
+        console.log("댓글 조회 결과:", results);
         res.send({success : true, data : results})
     })
 })

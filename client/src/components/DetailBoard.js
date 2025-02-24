@@ -1,28 +1,28 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPostDetail, clearPostDetail } from '../redux/slices/postsSlice';
+import React, { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPostDetail, clearPostDetail } from "../redux/slices/postsSlice";
+import Comment from "./Comment"; //  댓글 컴포넌트 추가
 
-
-const DetailBoard = ({ onDelete, isAuthenticated}) => {
-    const { id } =useParams();
-    console.log("게시글 상세보기 id 확인 : ", id)
+const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
+    const { id } = useParams();
+    console.log("게시글 상세보기 id 확인 : ", id);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { postDetail, status} = useSelector((state) => state.posts);
+    const { postDetail, status } = useSelector((state) => state.posts);
 
     useEffect(() => {
         dispatch(fetchPostDetail(id));
         return () => {
             dispatch(clearPostDetail());
         };
-    }, [dispatch,id])
+    }, [dispatch, id]);
 
     const handleDelete = () => {
-        if (window.confirm('정말로 삭제하시겠습니까?')) {
+        if (window.confirm("정말로 삭제하시겠습니까?")) {
             onDelete(id);
-            alert('게시글이 삭제되었습니다.');
-            navigate('/board');
+            alert("게시글이 삭제되었습니다.");
+            navigate("/board");
         }
     };
 
@@ -31,12 +31,12 @@ const DetailBoard = ({ onDelete, isAuthenticated}) => {
     };
 
     const handleHome = () => {
-        navigate('/board');
+        navigate("/board");
     };
 
-    const formatDate = (dateStr) => new Date(dateStr).toLocaleString('ko-KR');
+    const formatDate = (dateStr) => new Date(dateStr).toLocaleString("ko-KR");
 
-    if (status === 'loading') {
+    if (status === "loading") {
         return <p>게시글을 불러오는 중입니다...</p>;
     }
 
@@ -77,11 +77,15 @@ const DetailBoard = ({ onDelete, isAuthenticated}) => {
                     )}
                 </div>
             </div>
+
+            {/*  댓글 컴포넌트 추가 */}
+            <Comment postId={id} isAuthenticated={isAuthenticated} user={user} />
         </div>
     );
 };
 
 export default DetailBoard;
+
 
 
 
