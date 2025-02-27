@@ -39,7 +39,7 @@
   
 ## 5. 개발 내용
 + [React 게시판 - 세션기반 로그인&로그아웃](https://www.notion.so/React-175cb667a0958089874cc2f4d1051f35?pvs=4)
-+ [React 게시판 - React 게시판 - 페이지내이션](https://www.notion.so/React-pagination-175cb667a09580cd83baf570b6af7b94?pvs=4)
++ [React 게시판 - 페이지내이션](https://www.notion.so/React-pagination-175cb667a09580cd83baf570b6af7b94?pvs=4)
 + [React 게시판 - 댓글 CRUD](https://www.notion.so/React-CRUD-175cb667a095803ea066d15b27e5360e?pvs=4)
 + [React 게시판 - 검색 구현](https://www.notion.so/React-175cb667a095803481fffa0de412a35e?pvs=4)
 + [React 게시판 - 회원가입](https://www.notion.so/React-175cb667a0958037986ee6f4194c61af?pvs=4)
