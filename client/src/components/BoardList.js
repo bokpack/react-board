@@ -50,7 +50,7 @@ const BoardList = () => {
   return (
     <div className="bg-white">
       <div>
-        <p className="text-2xl p-2 text-center">자유게시판임니다</p>
+        <p className="text-2xl p-2 text-center pt-10 pb-10">자유게시판임니다</p>
       </div>
 
       <table className="w-full border-collapse border text-center">

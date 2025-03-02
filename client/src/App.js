@@ -8,7 +8,7 @@ import { fetchPosts } from './redux/slices/postsSlice';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
-import { searchPosts, createBoard } from './services/api';
+import { searchPosts, createBoard, deleteBoard, updateBoard } from './services/api';
 import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
@@ -22,7 +22,12 @@ function App() {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const { posts, filteredPosts, status } = useSelector((state) => state.posts);
 
-  useEffect(() => {
+const loadPosts = () => {
+    dispatch(fetchPosts()); // Redux에서 게시글 목록 다시 불러오기
+    };
+
+
+    useEffect(() => {
     // 세션 확인 및 게시글 로드
     dispatch(checkSession());
     dispatch(fetchPosts());
@@ -50,7 +55,16 @@ function App() {
     }
   };
 
-  const handlePostSubmit = async (post) => {
+    const handleDelete = (id) => {
+     deleteBoard(id)
+       .then(() => loadPosts())
+       .catch((err) => console.error("게시글 삭제 실패:", err));
+   };
+
+
+
+
+const handlePostSubmit = async (post) => {
     try {
         console.log("새 글 추가됨:", post);
 
@@ -70,6 +84,27 @@ function App() {
         alert(`게시글 저장 중 오류: ${error.response?.data?.message || error.message}`);
     }
 };
+
+const handlePostUpdate = async (id, updatedData) => {
+        try {
+            console.log("게시글 수정 요청:", updatedData);
+
+            const response = await updateBoard(id, updatedData);
+            console.log("수정 API 응답:", response.data);
+
+            if (response.data.success) {
+                console.log("게시글이 성공적으로 수정되었습니다.");
+                dispatch(fetchPosts()); // ✅ 수정 후 게시글 목록 다시 불러오기
+                navigate("/board");
+            } else {
+                alert(`게시글 수정 실패: ${response.data.message || "알 수 없는 오류"}`);
+            }
+        } catch (error) {
+            console.error("게시글 수정 중 오류 발생:", error);
+            alert(`게시글 수정 중 오류: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
 
 
   return (
@@ -112,6 +147,7 @@ function App() {
               user={user}
               isAuthenticated={isAuthenticated}
               posts={posts}
+              onDelete={handleDelete}
             />
           }
         />
@@ -119,8 +155,8 @@ function App() {
         <Route
           path="/update/:id"
           element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <BoardWrite />
+            <PrivateRoute isAuthenticated={isAuthenticated} >
+                <BoardWrite posts={posts} onSubmit={handlePostSubmit} isAuthenticated={isAuthenticated} />
             </PrivateRoute>
           }
         />
