@@ -1,16 +1,15 @@
 import { useState } from "react";
-const DropDown = ({ toggleMenu = "", options = [], onOptionSelect }) => {
+const DropDown = ({ options = [], selectedField,setSelectedField  }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(null);
+    
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
     const handleOptionClick = (option) => {
-        setSelectedOption(option.label);
+        setSelectedField(option.value);
         setIsOpen(false);
-        onOptionSelect(option.value);
     };
 
     return (
@@ -19,7 +18,7 @@ const DropDown = ({ toggleMenu = "", options = [], onOptionSelect }) => {
                 onClick={toggleDropdown}
                 className="flex justify-center px-4 py-2 bg-lime-400 text-white rounded cursor-pointer w-28 gap-3"
             >
-                {selectedOption || toggleMenu}
+                {selectedField ? options.find((opt) => opt.value === selectedField)?.label : "선택"}
                 <span>{isOpen ? "▲" : "▼"}</span>
             </div>
             {isOpen && (

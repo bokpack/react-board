@@ -403,16 +403,21 @@ app.get("/api/search", (req, res) => {
     if (!query || !field) {
         return res.status(400).send({ success: false, message: "검색어와 필드를 입력해주세요" });
     }
-    const allowedFields = ["title", "content", "writer"]
-    if(!allowedFields.includes(field)) {
-        return res.status(400).send({success : false, message : "유효하지 않은 검색필드입니다."})
-    }
-    const dbField = field === "writer" ? "u.name" : `b.${field}`
 
-    let sqlQuery = `SELECT b.id, b.title, b.content, b.date, b.view_count, u.name AS writer
-                    FROM board b
-                    JOIN user u ON b.user_id = u.id
-                    WHERE ${dbField} LIKE ?`;
+    const allowedFields = ["title", "content", "writer"];
+    if (!allowedFields.includes(field)) {
+        return res.status(400).send({ success: false, message: "유효하지 않은 검색 필드입니다." });
+    }
+
+    // 필드 이름 매핑
+    const dbField = field === "writer" ? "u.name" : `b.${field}`;
+
+    const sqlQuery = `
+        SELECT b.id, b.title, b.content, b.date, b.view_count, u.name AS writer
+        FROM board b
+        JOIN user u ON b.user_id = u.id
+        WHERE ${dbField} LIKE ?
+    `;
 
     db.query(sqlQuery, [`%${query}%`], (err, result) => {
         if (err) {

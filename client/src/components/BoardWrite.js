@@ -27,16 +27,20 @@ const BoardWrite = ({ posts,onSubmit, isAuthenticated  }) => {
     }
 
     const handleSubmit = () => {
-        if (formData.title && formData.content) {
-            const newPost = id
-                ? { ...formData, id: parseInt(id, 10) } // 수정하는 경우 ID 유지
-                : { ...formData }; // 새 글 작성 시 ID 없이 전송
-    
-            onSubmit(newPost); 
-            navigate("/board");
-        } else {
-            alert("제목과 내용을 입력해주세요 ~");
+        if (!formData.title || !formData.content) {
+            alert("제목과 내용을 입력해주세요.");
+            return;
         }
+
+        if (id) {
+            // 수정 요청 (updateBoard 호출)
+            onSubmit(parseInt(id, 10), formData, "update");
+        } else {
+            // 새 게시글 작성 (createBoard 호출)
+            onSubmit(null, formData, "create");
+        }
+
+        navigate("/board");
     };
     
 

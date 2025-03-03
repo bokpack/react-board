@@ -1,10 +1,9 @@
 import './App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { checkSession } from './redux/slices/userSlice';
-import { fetchPosts } from './redux/slices/postsSlice';
 import BoardList from './components/BoardList';
 import BoardWrite from './components/BoardWrite';
 import DetailBoard from './components/DetailBoard';
@@ -13,19 +12,27 @@ import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
 import SignUp from './components/SignUp';
+import { setFilteredPosts, clearFilteredPosts, fetchPosts } from './redux/slices/postsSlice';
 
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Redux 상태 가져오기
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const { posts, filteredPosts, status } = useSelector((state) => state.posts);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedField, setSelectedField] = useState(""); 
+
+  useEffect(() => {
+    dispatch(checkSession());
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
 const loadPosts = () => {
     dispatch(fetchPosts()); // Redux에서 게시글 목록 다시 불러오기
     };
-
 
     useEffect(() => {
     // 세션 확인 및 게시글 로드
@@ -35,16 +42,34 @@ const loadPosts = () => {
 
   const handleSearch = async (query, field) => {
     try {
-      if (!field) {
-        alert("검색 필드를 선택해주세요!");
-        return;
-      }
-      const response = await searchPosts(query, field);
-      console.log("검색 결과:", response.data);
+        if (!field) {
+            alert("검색 필드를 선택해주세요!");
+            return;
+        }
+        if (!query || query.trim() === "") {
+            alert("검색어를 입력해주세요!");
+            return;
+        }
+        
+        const response = await searchPosts(query, field);
+        console.log("검색 결과:", response.data);
+
+        dispatch(setFilteredPosts(response.data));
+        setSearchQuery(query);
+        setSelectedField(field);
     } catch (err) {
-      console.error("검색 실패:", err);
+        console.error("검색 실패:", err);
     }
+};
+
+
+  const handleHomeClick = () => {
+    dispatch(clearFilteredPosts()); // Redux 검색 결과 초기화
+    setSearchQuery("");
+    setSelectedField("");
+    navigate("/board");
   };
+
 
   const handleWriteClick = () => {
     if (isAuthenticated) {
@@ -64,26 +89,32 @@ const loadPosts = () => {
 
 
 
-const handlePostSubmit = async (post) => {
+   const handlePostSubmit = async (id, postData, actionType) => {
     try {
-        console.log("새 글 추가됨:", post);
+        let response;
+        if (actionType === "update" && id) {
+            console.log("게시글 수정 요청:", id, postData);
+            response = await updateBoard(id, postData); // 
+        } else {
+            console.log("새 글 추가됨:", postData);
+            response = await createBoard(postData); // 
+        }
 
-        // ✅ 새 게시글을 API에 저장
-        const response = await createBoard(post);
-        console.log("API 응답:", response.data); // 응답 데이터 확인
+        console.log("API 응답:", response.data);
 
         if (response.data.success) {
             console.log("게시글이 성공적으로 저장되었습니다.");
-            dispatch(fetchPosts()); // ✅ 새 글 추가 후 게시글 목록 다시 불러오기
+            dispatch(fetchPosts()); //
             navigate("/board");
         } else {
-            alert(`게시글 저장 실패: ${response.data.message || "알 수 없는 오류"}`);
+            alert(`게시글 처리 실패: ${response.data.message || "알 수 없는 오류"}`);
         }
     } catch (error) {
-        console.error("게시글 저장 중 오류 발생:", error);
-        alert(`게시글 저장 중 오류: ${error.response?.data?.message || error.message}`);
+        console.error("게시글 처리 중 오류 발생:", error);
+        alert(`게시글 처리 중 오류: ${error.response?.data?.message || error.message}`);
     }
 };
+
 
 const handlePostUpdate = async (id, updatedData) => {
         try {
@@ -109,8 +140,15 @@ const handlePostUpdate = async (id, updatedData) => {
 
   return (
     <div className="App mx-auto p-6 py-4">
-      <NavBar isAuthenticated={isAuthenticated} onSearch={handleSearch} />
-
+      <NavBar 
+        isAuthenticated={isAuthenticated} 
+        onSearch={handleSearch} 
+        onHomeClick={handleHomeClick} 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        selectedField={selectedField} 
+        setSelectedField={setSelectedField} 
+      />
       <Routes>
         <Route path="/" element={<Navigate to="/board" replace />} />
         <Route
