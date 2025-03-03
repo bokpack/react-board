@@ -1,6 +1,6 @@
 # Basic React board Project
 ## 1. 프로젝트 소개
-웹 개발의 기본 소양이 되는 게시판을 직접 만들어보면서 기술 습득을 하기 위해 시작하였습니다. 
+웹 개발의 기본 소양이 되는 게시판을 직접 만들어보면서 기술 습득을 하기 위해 시작하였습니다.
 
 ## 2. 프로젝트 기능
 + 게시판 - CRUD 기능, 조회수, 페이징처리, 검색
@@ -38,6 +38,7 @@
   <img width="485" alt="Image" src="https://github.com/user-attachments/assets/9d8f1ae2-cfa9-45ad-8f5e-9aeaabe11689" />
   
 ## 5. 개발 내용
++ React 게시판 주소 : http://woooooo.shop
 + [React 게시판 - 세션기반 로그인&로그아웃](https://www.notion.so/React-175cb667a0958089874cc2f4d1051f35?pvs=4)
 + [React 게시판 - 페이지내이션](https://www.notion.so/React-pagination-175cb667a09580cd83baf570b6af7b94?pvs=4)
 + [React 게시판 - 댓글 CRUD](https://www.notion.so/React-CRUD-175cb667a095803ea066d15b27e5360e?pvs=4)
