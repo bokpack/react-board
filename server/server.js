@@ -3,7 +3,7 @@ const cors = require('cors');
 const mysql = require('mysql2')
 const app = express();
 const PORT = 8000;
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 
@@ -179,35 +179,75 @@ app.get("/api/get", (req,res) => {
 })
 
 // UPDATE 게시글 수정
-app.put("/api/update/:id", (req,res) => {
+app.put("/api/update/:id", (req, res) => {
     const id = req.params.id;
     const { title, content } = req.body;
+    const userId = req.session.user?.id;
 
-    const sqlQuery = "UPDATE board SET title = ?, content = ? WHERE id = ? ";
-    db.query(sqlQuery, [title, content, id], (err, result) => {
-        if(err) {
-            console.log("MYSQL 쿼리 오류: ", err);
-            return res.status(500).send("서버오류")
+    if (!userId) {
+        return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
+    }
+
+    // 게시글 작성자 확인
+    const checkQuery = "SELECT user_id FROM board WHERE id = ?";
+    db.query(checkQuery, [id], (err, results) => {
+        if (err) {
+            console.error("게시글 수정 실패 : ", err);
+            return res.status(500).send("서버 오류");
         }
-        console.log("게시글 수정 성공 : ", result);
-        res.send("success")
-    })
-})
+        if (results.length === 0) {
+            return res.status(404).send({ success: false, message: "게시글이 존재하지 않습니다." });
+        }
+        if (results[0].user_id !== userId) {
+            return res.status(403).send({ success: false, message: "본인 게시글만 수정할 수 있습니다." });
+        }
+
+        // 수정 진행
+        const updateQuery = "UPDATE board SET title = ?, content = ? WHERE id = ?";
+        db.query(updateQuery, [title, content, id], (err, result) => {
+            if (err) {
+                console.error("게시글 수정 실패 : ", err);
+                return res.status(500).send("게시글 수정 실패");
+            }
+            res.send({ success: true, message: "게시글이 수정되었습니다." });
+        });
+    });
+});
 
 // DELETE 게시글 삭제
-app.delete("/api/delete/:id", (req,res) => {
+app.delete("/api/delete/:id", (req, res) => {
     const id = req.params.id;
-    console.log("삭제요청받은은 id : ", id)
-    const sqlQuery = "DELETE FROM board WHERE id = ? "
-    db.query(sqlQuery, [id], (err,result) => {
-        if(err) {
-            console.error("MYSQL 쿼리 오류 : ",err);
-            return res.status(500).send('서버오류');
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
+    }
+
+    // 게시글 작성자 확인
+    const checkQuery = "SELECT user_id FROM board WHERE id = ?";
+    db.query(checkQuery, [id], (err, results) => {
+        if (err) {
+            console.error("게시글 삭제 실패 : ", err);
+            return res.status(500).send("서버 오류");
         }
-        console.log('게시글 삭제 성공 : ',result);
-        res.send(result);
-    })
-})
+        if (results.length === 0) {
+            return res.status(404).send({ success: false, message: "게시글이 존재하지 않습니다." });
+        }
+        if (results[0].user_id !== userId) {
+            return res.status(403).send({ success: false, message: "본인 게시글만 삭제할 수 있습니다." });
+        }
+
+        // 삭제 진행
+        const deleteQuery = "DELETE FROM board WHERE id = ?";
+        db.query(deleteQuery, [id], (err, result) => {
+            if (err) {
+                console.error("게시글 삭제 실패 : ", err);
+                return res.status(500).send("게시글 삭제 실패");
+            }
+            res.send({ success: true, message: "게시글이 삭제되었습니다." });
+        });
+    });
+});
 
 // GET 게시글 상세조회 및 조회수
 app.get("/api/detail/:id", (req, res) => {

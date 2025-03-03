@@ -19,6 +19,10 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
     }, [dispatch, id]);
 
     const handleDelete = () => {
+        if (!user || user.name !== postDetail.writer) {
+            alert("본인이 작성한 글만 삭제할 수 있습니다.");
+            return;
+        }
         if (window.confirm("정말로 삭제하시겠습니까?")) {
             onDelete(id);
             alert("게시글이 삭제되었습니다.");
@@ -27,6 +31,10 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
     };
 
     const handleUpdate = () => {
+        if (!user || user.name !== postDetail.writer) {
+            alert("본인이 작성한 글만 수정할 수 있습니다.");
+            return;
+        }
         navigate(`/update/${id}`);
     };
 
@@ -65,7 +73,7 @@ const DetailBoard = ({ onDelete, isAuthenticated, user }) => {
                     <button onClick={handleHome} className="p-2 rounded-sm bg-lime-400 text-white">
                         목록
                     </button>
-                    {isAuthenticated && (
+                    {isAuthenticated && user && user.name === postDetail.writer && (
                         <>
                             <button onClick={handleDelete} className="p-2 rounded-sm bg-indigo-400 text-white">
                                 삭제
